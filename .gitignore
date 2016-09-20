@@ -1,0 +1,64 @@
+# Go
+/pkg
+/var
+/coverage.out
+/dist/
+dist.tar.gz
+
+
+# OSX
+.DS_Store
+.AppleDouble
+.LSOverride
+
+
+# Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm
+.idea/
+*.ipr
+*.iws
+*.iml
+out/
+
+
+# Ansible
+*.retry
+
+# NodeJS
+node_modules
+npm-debug.log
+web/public/build
+web/public/stats.json
+web/result
+
+
+# Xcode
+build/
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata/
+*.xccheckout
+profile
+*.moved-aside
+DerivedData
+*.hmap
+*.ipa
+
+
+# Bundler
+.bundle
+
+Carthage
+# We recommend against adding the Pods directory to your .gitignore. However
+# you should judge for yourself, the pros and cons are mentioned at:
+# http://guides.cocoapods.org/using/using-cocoapods.html#should-i-ignore-the-pods-directory-in-source-control
+# 
+# Note: if you ignore the Pods directory, make sure to uncomment
+# `pod install` in .travis.yml
+#
+Pods/

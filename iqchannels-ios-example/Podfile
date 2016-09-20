@@ -1,0 +1,10 @@
+use_frameworks!
+
+target 'IQChannels_Example' do
+  pod 'IQChannels', :path => '../'
+
+  target 'IQChannels_Tests' do
+    inherit! :search_paths
+  end
+end
+

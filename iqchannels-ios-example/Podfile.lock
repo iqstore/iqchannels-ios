@@ -1,0 +1,25 @@
+PODS:
+  - IQChannels (0.1.0):
+    - JSQMessagesViewController (~> 7.3)
+    - TRVSEventSource (= 0.0.8)
+  - JSQMessagesViewController (7.3.4):
+    - JSQSystemSoundPlayer (~> 2.0.1)
+  - JSQSystemSoundPlayer (2.0.1)
+  - TRVSEventSource (0.0.8)
+
+DEPENDENCIES:
+  - IQChannels (from `../`)
+
+EXTERNAL SOURCES:
+  IQChannels:
+    :path: ../
+
+SPEC CHECKSUMS:
+  IQChannels: d85a1fca69bcb5a619fee1fd67d5fd9f1e96d4eb
+  JSQMessagesViewController: 39fed975e3c9f8eba7292071e29eeb541d105e66
+  JSQSystemSoundPlayer: c5850e77a4363ffd374cd851154b9af93264ed8d
+  TRVSEventSource: 19fb940e0351ceb97125d46fd40cd55e339568d8
+
+PODFILE CHECKSUM: 116f6b90f3c283bf4fdfb7218cf877bfe8172c56
+
+COCOAPODS: 1.0.1

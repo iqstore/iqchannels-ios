@@ -152,6 +152,7 @@
     [self reloadData];
     [self finishReceivingMessage];
     [self userInteractionEnable];
+    [self listenToEvents];
 }
 
 - (void)failedToLoadThreadWithError:(NSError *)error {

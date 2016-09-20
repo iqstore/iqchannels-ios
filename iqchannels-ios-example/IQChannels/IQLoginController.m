@@ -10,8 +10,8 @@
 
 
 NSString *const userDefaultsLoginServerKey = @"iqchannels-example.login.server";
-NSString *const userDefaultsLoginServerValue = @"http://192.168.1.102:3001";
-// NSString *const userDefaultsLoginServerValue = @"http://mc.bigdev.ru:3001";
+// NSString *const userDefaultsLoginServerValue = @"http://192.168.1.102:3001";
+NSString *const userDefaultsLoginServerValue = @"http://iq.bigdev.ru";
 
 
 @interface IQLoginController () <UITextFieldDelegate>

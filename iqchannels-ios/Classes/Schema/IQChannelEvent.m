@@ -63,6 +63,32 @@
     return threads;
 }
 
+- (void)dispatch:(id <IQChannelEventDispatcher>)dispatcher {
+    NSString *type = self.Type;
+    if ([type isEqualToString:IQChannelEventThreadCreated]) {
+        if ([dispatcher respondsToSelector:@selector(channelEventThreadCreated:)]) {
+            [dispatcher channelEventThreadCreated:self];
+        }
+
+    } else if ([type isEqualToString:IQChannelEventMessageCreated]) {
+        if ([dispatcher respondsToSelector:@selector(channelEventMessageCreated:)]) {
+            [dispatcher channelEventMessageCreated:self];
+        }
+    } else if ([type isEqualToString:IQChannelEventMessageReceived]) {
+        if ([dispatcher respondsToSelector:@selector(channelEventMessageReceived:)]) {
+            [dispatcher channelEventMessageReceived:self];
+        }
+    } else if ([type isEqualToString:IQChannelEventMessageRead]) {
+        if ([dispatcher respondsToSelector:@selector(channelEventMessageRead:)]) {
+            [dispatcher channelEventMessageRead:self];
+        }
+    } else if ([type isEqualToString:IQChannelEventTyping]) {
+        if ([dispatcher respondsToSelector:@selector(channelEventTyping:)]) {
+            [dispatcher channelEventTyping:self];
+        }
+    }
+}
+
 - (id)copyWithZone:(NSZone *)zone {
     IQChannelEvent *copy = [[IQChannelEvent allocWithZone:zone] init];
     copy.Id = _Id;
@@ -76,6 +102,6 @@
 
     copy.Thread = [_Thread copyWithZone:zone];
     copy.Message = [_Message copyWithZone:zone];
-    return self;
+    return copy;
 }
 @end

@@ -6,7 +6,6 @@
 //
 //
 #import <Foundation/Foundation.h>
-#import <JSQMessagesViewController/JSQMessageData.h>
 #import "IQSchemaConsts.h"
 #import "IQJSONDecodable.h"
 
@@ -17,7 +16,7 @@
 @class IQChannelEvent;
 
 
-@interface IQChannelMessage : NSObject <NSCopying, JSQMessageData, IQJSONDecodable>
+@interface IQChannelMessage : NSObject <NSCopying, IQJSONDecodable>
 @property(nonatomic) int64_t Id;
 @property(nonatomic) int64_t ThreadId;
 @property(nonatomic) int64_t LocalId;
@@ -45,9 +44,8 @@
 @property(nonatomic, nullable) IQUser *User;
 @property(nonatomic, nullable) IQClient *Client;
 
-+ (NSString *)senderIdWithClientId:(int64_t)id;
 + (NSArray<IQChannelMessage *> *_Nonnull)fromJSONArray:(id _Nullable)array;
 
-- (id)initWithClientId:(int64_t)clientId form:(IQChannelMessageForm *)form;
-- (void)applyEvent:(IQChannelEvent *)event;
+- (id _Nonnull)initWithClientId:(int64_t)clientId form:(IQChannelMessageForm * _Nonnull)form;
+- (void)applyEvent:(IQChannelEvent * _Nonnull)event;
 @end

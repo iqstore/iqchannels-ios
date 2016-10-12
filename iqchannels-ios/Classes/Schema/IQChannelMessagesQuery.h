@@ -10,8 +10,8 @@
 #import "IQJSONEncodable.h"
 
 @interface IQChannelMessagesQuery : NSObject <IQJSONEncodable, NSCopying>
-@property(nonatomic) NSNumber *MaxId;
-@property(nonatomic) NSNumber *Limit;
-- (instancetype)init;
-- (instancetype)initWithMaxId:(NSNumber *)maxId;
+@property(nonatomic, nullable) NSNumber *MaxId;
+@property(nonatomic, nullable) NSNumber *Limit;
+- (instancetype _Nonnull)init;
+- (instancetype _Nonnull)initWithMaxId:(NSNumber * _Nullable)maxId;
 @end

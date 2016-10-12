@@ -26,7 +26,7 @@ extern IQChannelAuthorType const IQChannelAuthorClient;
 typedef NSString *IQChannelPayloadType;
 extern IQChannelPayloadType const IQChannelPayloadInvalid;
 extern IQChannelPayloadType const IQChannelPayloadText;
-extern IQChannelPayloadType const IQChannelPayloadEvent;
+extern IQChannelPayloadType const IQChannelPayloadFile;
 
 
 typedef NSString *IQChannelEventType;

@@ -14,6 +14,7 @@
 @class IQChannelThread;
 @class IQChannelMessage;
 @class IQRelationMap;
+@protocol IQChannelEventDispatcher;
 
 
 @interface IQChannelEvent : NSObject <IQJSONDecodable, NSCopying>
@@ -31,4 +32,15 @@
 @property(nonatomic, nullable) IQChannelMessage *Message;  // Present in event_created.
 
 + (NSArray<IQChannelEvent *> *_Nonnull)fromJSONArray:(id _Nullable)array;
+- (void)dispatch:(id<IQChannelEventDispatcher> _Nonnull)dispatcher;
+@end
+
+
+@protocol IQChannelEventDispatcher <NSObject>
+@optional
+- (void)channelEventThreadCreated:(IQChannelEvent *_Nonnull)event;
+- (void)channelEventMessageCreated:(IQChannelEvent *_Nonnull)event;
+- (void)channelEventMessageReceived:(IQChannelEvent *_Nonnull)event;
+- (void)channelEventMessageRead:(IQChannelEvent *_Nonnull)event;
+- (void)channelEventTyping:(IQChannelEvent *_Nonnull)event;
 @end

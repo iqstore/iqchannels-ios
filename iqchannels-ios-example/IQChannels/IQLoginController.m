@@ -11,7 +11,8 @@
 
 NSString *const userDefaultsLoginServerKey = @"iqchannels-example.login.server";
 // NSString *const userDefaultsLoginServerValue = @"http://192.168.1.102:3001";
-NSString *const userDefaultsLoginServerValue = @"http://iq.bigdev.ru";
+//NSString *const userDefaultsLoginServerValue = @"http://10.0.0.11:3001";
+ NSString *const userDefaultsLoginServerValue = @"https://demo.iqstore.ru:3443";
 
 
 @interface IQLoginController () <UITextFieldDelegate>
@@ -52,7 +53,7 @@ NSString *const userDefaultsLoginServerValue = @"http://iq.bigdev.ru";
         [_userDefaults removeObjectForKey:userDefaultsLoginServerKey];
         server = userDefaultsLoginServerValue;
     } else {
-        [_userDefaults setObject:userDefaultsLoginServerKey forKey:server];
+        [_userDefaults setObject:server forKey:userDefaultsLoginServerKey];
         [_userDefaults synchronize];
     }
 

@@ -15,5 +15,5 @@
 @property(nonatomic, nullable) NSObject *Result;
 @property(nonatomic, nullable) IQRelations *Rels;
 
-+ (instancetype)fromJSONData:(NSData *)data error:(NSError **)error;
++ (instancetype _Nullable)fromJSONData:(NSData * _Nonnull)data error:(NSError *_Nullable *)error;
 @end

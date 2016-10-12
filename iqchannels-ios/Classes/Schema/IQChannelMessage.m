@@ -14,17 +14,7 @@
 #import "IQChannelEvent.h"
 
 
-@implementation IQChannelMessage {
-    NSString *_senderId;
-}
-
-+ (NSString *)senderIdWithUserId:(int64_t)userId {
-    return [NSString stringWithFormat:@"user-%lli", userId];
-}
-
-+ (NSString *)senderIdWithClientId:(int64_t)clientId {
-    return [NSString stringWithFormat:@"client-%lli", clientId];
-}
+@implementation IQChannelMessage
 
 + (instancetype)fromJSONObject:(id _Nullable)object {
     if (object == nil) {
@@ -136,9 +126,6 @@
 
     // Check that message ids match.
     if (_Id != event.MessageId.longLongValue) {
-        if (![event.Message.Author isEqualToString:IQChannelAuthorClient]) {
-            return;
-        }
         if (_LocalId != event.Message.LocalId) {
             return;
         }
@@ -161,50 +148,5 @@
             _ReceivedAt = @(event.CreatedAt);
         }
     }
-}
-
-#pragma mark JSQMessageData
-
-- (NSString *)senderId {
-    if (_senderId != nil) {
-        return _senderId;
-    }
-
-    if ([_Author isEqualToString:IQChannelAuthorClient]) {
-        _senderId = [IQChannelMessage senderIdWithClientId:_ClientId.longLongValue];
-    } else {
-        _senderId = [IQChannelMessage senderIdWithUserId:_UserId.longLongValue];
-    }
-    return _senderId;
-}
-
-- (NSString *)senderDisplayName {
-    if ([_Author isEqualToString:IQChannelAuthorClient]) {
-        return _Client ? _Client.Name : @"Client";
-    } else {
-        return _User ? _User.Name : @"User";
-    }
-}
-
-- (NSDate *)date {
-    NSTimeInterval time = _CreatedAt / 1000.0;
-    return [NSDate dateWithTimeIntervalSince1970:time];
-}
-
-- (BOOL)isMediaMessage {
-    return NO;
-}
-
-- (NSUInteger)messageHash {
-    return (NSUInteger) (_LocalId ^ (_LocalId >> 32));
-}
-
-- (NSString *)text {
-    return _Text;
-}
-
-- (id <JSQMessageMediaData>)media {
-    // TODO: Implement.
-    return nil;
 }
 @end

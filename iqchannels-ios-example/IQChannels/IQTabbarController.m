@@ -6,14 +6,14 @@
 //  Copyright © 2016 Ivan Korobkov. All rights reserved.
 //
 
-#import <IQChannels/IQChannels.h>
+#import <IQChannels/SDK.h>
 #import "IQTabbarController.h"
 #import "IQAppDelegate.h"
 #import "IQExpensesController.h"
 #import "IQMessagesController.h"
 
 
-@interface IQTabbarController () <UITabBarControllerDelegate>
+@interface IQTabbarController () <UITabBarControllerDelegate, IQChannelsLoginListener>
 @property(nonatomic) UINavigationController *expenses;
 @property(nonatomic) UINavigationController *messages;
 @property(nonatomic) UINavigationController *logout;
@@ -21,6 +21,7 @@
 
 
 @implementation IQTabbarController
+
 + (instancetype)controllerWithAppDelegate:(IQAppDelegate *)appDelegate {
     IQTabbarController *controller = [[IQTabbarController alloc] init];
     controller.appDelegate = appDelegate;
@@ -35,6 +36,18 @@
     self.messages = [self newMessages];
     self.logout = [self newLogout];
     self.viewControllers = @[self.expenses, self.messages, self.logout];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+
+    [IQChannels addLoginListener:self];
+}
+
+- (void)viewDidDisappear:(BOOL)animated {
+    [super viewDidDisappear:animated];
+
+    [IQChannels removeLoginListener:self];
 }
 
 - (UINavigationController *)newExpenses {
@@ -89,5 +102,29 @@ shouldSelectViewController:(UIViewController *)viewController {
         return NO;
     }
     return YES;
+}
+
+- (void)syncUnread {
+
+}
+
+- (void)cancelSyncUnread {
+
+}
+
+#pragma mark IQChannelsLoginListener
+
+- (void)channelsLoginStateChanged:(IQChannelsLoginState)state {
+
+}
+
+#pragma mark IQChannelsUnreadListener
+
+- (void)channelsUnreadUpdated:(NSNumber *)unread {
+    if (unread == nil || unread.intValue == 0) {
+        self.messages.tabBarItem.badgeValue = nil;
+    } else {
+        self.messages.tabBarItem.badgeValue = [NSString stringWithFormat:@"%@", unread];
+    }
 }
 @end

@@ -12,8 +12,8 @@
 @interface IQUser : NSObject <IQJSONDecodable, NSCopying>
 @property(nonatomic) int64_t Id;
 @property(nonatomic) int64_t OrgId;
-@property(nonatomic) NSString *Name;
-@property(nonatomic) NSString *Email;
+@property(nonatomic, nullable) NSString *Name;
+@property(nonatomic, nullable) NSString *Email;
 @property(nonatomic) BOOL Active;
 @property(nonatomic) int64_t CreatedAt;
 @property(nonatomic) int64_t LoggedInAt;

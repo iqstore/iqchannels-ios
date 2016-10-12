@@ -16,9 +16,9 @@ NSInteger const IQErrorClientError = 3;
 
 
 @implementation NSError (IQChannels)
-+ (NSError *_Nonnull)iq_authRequired {
++ (NSError *_Nonnull)iq_loggedOut {
     return [self iq_appErrorWithLocalizedDescription:
-        [NSBundle iq_channelsLocalizedStringForKey:@"errors.auth_required" value:@"Authentication required"]];
+        [NSBundle iq_channelsLocalizedStringForKey:@"errors.logged_out" value:@"Logged out"]];
 }
 
 + (NSError *)iq_appErrorWithLocalizedDescription:(NSString *_Nullable)text {
@@ -61,10 +61,5 @@ NSInteger const IQErrorClientError = 3;
 
 - (IQError *)iq_appError {
     return self.userInfo[IQErrorUserInfoKey];
-}
-
-- (UIAlertView *)iq_toAlertView {
-    return [[UIAlertView alloc] initWithTitle:@"Ошибка" message:self.localizedDescription delegate:nil
-        cancelButtonTitle:@"OK" otherButtonTitles:nil];
 }
 @end

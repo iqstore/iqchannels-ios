@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 
 @interface IQJSON : NSObject
-+ (id _Nullable)objectWithData:(NSData * _Nonnull)data error:(NSError * _Nullable *)error;
++ (id _Nullable)objectWithData:(NSData * _Nonnull)data error:(NSError *_Nullable * _Nullable)error;
 
 + (NSString * _Nullable)stringFromObject:(NSDictionary * _Nullable)object key:(NSString * _Nonnull)key;
 + (NSNumber * _Nullable)numberFromObject:(NSDictionary * _Nullable)object key:(NSString * _Nonnull)key;

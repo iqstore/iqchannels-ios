@@ -12,7 +12,4 @@
 @class JSQMessagesBubbleImage;
 
 @interface IQChannelMessagesViewController : JSQMessagesViewController
-@property (nonatomic) UIRefreshControl *refreshControl;
-@property (nonatomic) JSQMessagesBubbleImage *incomingBubble;
-@property (nonatomic) JSQMessagesBubbleImage *outgoingBubble;
 @end

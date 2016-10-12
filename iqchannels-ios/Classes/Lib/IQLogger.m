@@ -3,6 +3,7 @@
 //
 
 #import "IQLogger.h"
+#import "IQHttpClient.h"
 
 
 @implementation IQLogger

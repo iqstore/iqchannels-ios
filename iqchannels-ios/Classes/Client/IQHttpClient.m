@@ -11,13 +11,15 @@
 #import "IQChannelMessage.h"
 #import "IQChannelEvent.h"
 #import "IQClientSession.h"
-#import "IQClientExternalAuthRequest.h"
+#import "IQClientIntegrationAuthRequest.h"
 #import "IQLogger.h"
 #import "IQChannelThreadQuery.h"
 #import "IQChannelMessageForm.h"
 #import "IQChannelMessagesQuery.h"
 #import "IQHttpEventSource.h"
+#import "IQClientAuth.h"
 #import "IQClientAuthRequest.h"
+#import "IQChannelEventsQuery.h"
 
 
 @implementation IQHttpClient {
@@ -26,17 +28,22 @@
 }
 
 - (instancetype)initWithLogging:(IQLogging *)logging address:(NSString *)address {
+    return [self initWithLogging:logging address:address token:nil];
+}
+
+- (instancetype)initWithLogging:(IQLogging *)logging address:(NSString *)address token:(NSString *)token {
     if (!(self = [super init])) {
         return nil;
     }
 
     _logger = [logging loggerWithName:@"iqchannels.client"];
     _address = address;
+    _token = token;
     _session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration ephemeralSessionConfiguration]];
     return self;
 }
 
-- (IQCancel)clientAuth:(NSString *)token callback:(IQHttpSessionCallback)callback {
+- (IQCancel)clientAuth:(NSString *)token callback:(IQHttpClientAutCallback)callback {
     NSString *path = @"/clients/auth";
     IQClientAuthRequest *req = [[IQClientAuthRequest alloc] init];
     req.Token = token;
@@ -47,15 +54,15 @@
             return;
         }
 
-        IQClientSession *session = [IQClientSession fromJSONObject:response.Result];
-        callback(session, response.Rels, nil);
+        IQClientAuth *auth = [IQClientAuth fromJSONObject:response.Result];
+        callback(auth, response.Rels, nil);
     }];
 }
 
-- (IQCancel)clientAuthExternal:(NSString *)token callback:(IQHttpSessionCallback)callback {
-    NSString *path = @"/clients/auth_external";
-    IQClientExternalAuthRequest *req = [[IQClientExternalAuthRequest alloc] init];
-    req.ExternalToken = token;
+- (IQCancel)clientIntegrationAuth:(NSString *)credentials callback:(IQHttpClientAutCallback)callback {
+    NSString *path = @"/clients/integration_auth";
+    IQClientIntegrationAuthRequest *req = [[IQClientIntegrationAuthRequest alloc] init];
+    req.Credentials = credentials;
 
     return [self post:path body:req callback:^(IQResponse *response, NSError *error) {
         if (error != nil) {
@@ -63,8 +70,8 @@
             return;
         }
 
-        IQClientSession *session = [IQClientSession fromJSONObject:response.Result];
-        callback(session, response.Rels, nil);
+        IQClientAuth *auth = [IQClientAuth fromJSONObject:response.Result];
+        callback(auth, response.Rels, nil);
     }];
 }
 
@@ -95,23 +102,21 @@
     }];
 }
 
-- (IQCancel)channel:(NSString *)channel received:(NSArray<NSNumber *> *)messageIds
-           callback:(IQHttpVoidCallback)callback {
+- (IQCancel)receivedMessages:(NSArray<NSNumber *> *)messageIds callback:(IQHttpVoidCallback)callback {
     NSString *path = @"/channels/received";
     return [self post:path jsonObject:messageIds callback:^(IQResponse *response, NSError *error) {
         callback(error);
     }];
 }
 
-- (IQCancel)channel:(NSString *)channel read:(NSArray<NSNumber *> *)messageIds callback:(IQHttpVoidCallback)callback {
+- (IQCancel)readMessages:(NSArray<NSNumber *> *)messageIds callback:(IQHttpVoidCallback)callback {
     NSString *path = @"/channels/read";
     return [self post:path jsonObject:messageIds callback:^(IQResponse *response, NSError *error) {
         callback(error);
     }];
 }
 
-- (IQCancel)channel:(NSString *)channel messages:(IQChannelMessagesQuery *)query
-           callback:(IQHttpMessagesCallback)callback {
+- (IQCancel)channel:(NSString *)channel messages:(IQChannelMessagesQuery *)query callback:(IQHttpMessagesCallback)callback {
     NSString *path = [NSString stringWithFormat:@"/channels/messages/%@", channel];
     return [self post:path body:query callback:^(IQResponse *response, NSError *error) {
         if (error != nil) {
@@ -125,7 +130,19 @@
 }
 
 - (IQCancel)channel:(NSString *)channel listen:(IQChannelEventsQuery *)query callback:(IQHttpEventsCallback)callback {
-    NSString *path = [NSString stringWithFormat:@"/sse/channels/listen/%@", channel];
+    NSString *path = [NSString stringWithFormat:@"/sse/channels/events/%@", channel];
+    if (query.LastEventId != nil) {
+        path = [NSString stringWithFormat:@"%@?LastEventId=%lli", path, query.LastEventId.longLongValue];
+    }
+    if (query.Limit != nil) {
+        if ([path containsString:@"?"]) {
+            path = [NSString stringWithFormat:@"%@&", path];
+        } else {
+            path = [NSString stringWithFormat:@"%@?", path];
+        }
+        path = [NSString stringWithFormat:@"%@Limit=%i", path, query.Limit.integerValue];
+    }
+
     return [self sse:path callback:^(IQResponse *response, NSError *error) {
         if (error != nil) {
             callback(nil, nil, error);
@@ -141,6 +158,27 @@
         callback(events, response.Rels, nil);
     }];
 }
+
+- (IQCancel)channel:(NSString *)channel unreadWithCallback:(IQHttpUnreadCallback)callback {
+    NSString *path = [NSString stringWithFormat:@"/sse/channels/unread/%@", channel];
+    return [self sse:path callback:^(IQResponse *response, NSError *error) {
+        if (error != nil) {
+            callback(nil, error);
+            return;
+        }
+        if (response == nil) {
+            // An opened event.
+            return;
+        }
+
+        NSNumber *unread = @(0);
+        if (response.Result && [response.Result isKindOfClass:NSNumber.class]) {
+            unread = (NSNumber *) response.Result;
+        }
+        callback(unread, nil);
+    }];
+}
+
 
 #pragma mark POST
 
@@ -166,7 +204,7 @@
     NSURL *url = request.URL;
     NSURLSessionDataTask *task = [_session dataTaskWithRequest:request
         completionHandler:^(NSData *data, NSURLResponse *response, NSError *taskError) {
-            [self handleResponse:url data:data response:response error:error callback:callback];
+            [self handleResponse:url data:data response:response error:taskError callback:callback];
         }];
     [task resume];
 

@@ -14,6 +14,7 @@
 @property(nonatomic) int64_t LocalId;
 @property(nonatomic, copy, nullable) IQChannelPayloadType Payload;
 @property(nonatomic, copy, nullable) NSString *Text;
+@property(nonatomic, copy, nullable) NSString *ChannelName;
 
 - (instancetype _Nonnull)initWithText:(NSString *_Nullable)text;
 @end

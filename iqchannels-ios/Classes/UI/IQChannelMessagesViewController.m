@@ -7,247 +7,516 @@
 //
 
 #import "IQChannelMessagesViewController.h"
-#import "UIColor+IQChannels.h"
-#import "IQClientSession.h"
 #import "IQChannels.h"
+#import "IQClientSession.h"
 #import "IQChannelMessageForm.h"
 #import "IQChannelMessage.h"
-#import "IQChannelThread.h"
-#import "IQChannelsSession.h"
-#import "NSError+IQChannels.h"
+#import "UIColor+IQChannels.h"
 #import "IQChannelMessagesQuery.h"
-#import "IQTimeout.h"
-#import "IQChannelThreadQuery.h"
+#import "IQActivityIndicator.h"
+#import "SDK.h"
+#import "UIAlertView+IQChannels.h"
+#import "IQChannelMessageViewData.h"
+#import "IQChannelMessageViewArray.h"
 
 
-@interface IQChannelMessagesViewController () <IQChannelsListener>
+@interface IQChannelMessagesViewController () <IQChannelsLoginListener>
+@property(nonatomic) UIRefreshControl *refreshControl;
+@property(nonatomic) IQActivityIndicator *loginIndicator;
+@property(nonatomic) IQActivityIndicator *messagesIndicator;
+@property(nonatomic) JSQMessagesBubbleImage *incomingBubble;
+@property(nonatomic) JSQMessagesBubbleImage *outgoingBubble;
 @end
 
 
 @implementation IQChannelMessagesViewController {
-    NSString *_senderId;
-    IQChannelThread *_thread;
-    IQChannelsSessionState _sessionState;
+    NSString *_navigationItemTitle; // Set on viewWillAppear.
 
-    IQCancel _loadingThread;
+    IQClient *_client;
+    NSString *_senderId;
+    IQChannelsLoginState _loginState;
+
+    BOOL _loadedMessages;
     IQCancel _loadingMessages;
-    IQCancel _listeningToEvents;
-    BOOL _typingEndScheduled;
+    IQChannelMessageViewArray *_messages;
+
+    IQCancel _syncingEvents;
+    IQChannelsSyncEventsState _syncEventsState;
+
+    int64_t _userTypingAt;
+    BOOL _userTypingTimeoutScheduled;
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    _senderId = @"";
 
-    [self setupView];
-    [self clear];
-    [IQChannels addListener:self];
+    [self setupLoginIndicator];
+    [self setupMessagesIndicator];
+    [self setupBubbles];
+    [self setupAvatars];
+    self.automaticallyScrollsToMostRecentMessage = YES;
 }
 
-- (void)setupView {
-    _refreshControl = [[UIRefreshControl alloc] init];
-    [_refreshControl addTarget:self action:@selector(refresh:) forControlEvents:UIControlEventValueChanged];
-    [self.collectionView addSubview:_refreshControl];
+- (void)setupLoginIndicator {
+    _loginIndicator = [IQActivityIndicator activityIndicator];
+    _loginIndicator.translatesAutoresizingMaskIntoConstraints = NO;
 
-    _incomingBubble = [[[JSQMessagesBubbleImageFactory alloc] init]
-        incomingMessagesBubbleImageWithColor:[UIColor colorWithHex:0xe6e6eb]];
-    _outgoingBubble = [[[JSQMessagesBubbleImageFactory alloc] init]
-        outgoingMessagesBubbleImageWithColor:[UIColor colorWithHex:0x0f87ff]];
+    [self.view addSubview:_loginIndicator];
+    [self.view addConstraints:@[
+        [NSLayoutConstraint constraintWithItem:_loginIndicator
+            attribute:NSLayoutAttributeCenterX
+            relatedBy:NSLayoutRelationEqual
+            toItem:self.view
+            attribute:NSLayoutAttributeCenterX
+            multiplier:1 constant:0],
 
+        [NSLayoutConstraint constraintWithItem:_loginIndicator
+            attribute:NSLayoutAttributeCenterY
+            relatedBy:NSLayoutRelationEqual
+            toItem:self.view
+            attribute:NSLayoutAttributeCenterY
+            multiplier:1 constant:0]
+    ]];
+}
+
+- (void)setupMessagesIndicator {
+    _messagesIndicator = [IQActivityIndicator activityIndicator];
+    _messagesIndicator.translatesAutoresizingMaskIntoConstraints = NO;
+
+    [self.view addSubview:_messagesIndicator];
+    [self.view addConstraints:@[
+        [NSLayoutConstraint constraintWithItem:_messagesIndicator
+            attribute:NSLayoutAttributeCenterX
+            relatedBy:NSLayoutRelationEqual
+            toItem:self.view
+            attribute:NSLayoutAttributeCenterX
+            multiplier:1 constant:0],
+
+        [NSLayoutConstraint constraintWithItem:_messagesIndicator
+            attribute:NSLayoutAttributeCenterY
+            relatedBy:NSLayoutRelationEqual
+            toItem:self.view
+            attribute:NSLayoutAttributeCenterY
+            multiplier:1 constant:0]
+    ]];
+}
+
+- (void)setupBubbles {
+    _incomingBubble = [[[JSQMessagesBubbleImageFactory alloc] init] incomingMessagesBubbleImageWithColor:[UIColor colorWithHex:0xe6e6eb]];
+    _outgoingBubble = [[[JSQMessagesBubbleImageFactory alloc] init] outgoingMessagesBubbleImageWithColor:[UIColor colorWithHex:0x0f87ff]];
+}
+
+- (void)setupAvatars {
     self.collectionView.collectionViewLayout.incomingAvatarViewSize = CGSizeZero;
     self.collectionView.collectionViewLayout.outgoingAvatarViewSize = CGSizeZero;
+}
 
-    self.automaticallyScrollsToMostRecentMessage = YES;
+#pragma mark viewWillAppear/Disappear
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    [IQChannels addLoginListener:self];
+    _navigationItemTitle = self.navigationItem.title;
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
 
-    if (_loadingThread != nil) {
-        _loadingThread();
-        _loadingThread = nil;
-    }
-    if (_loadingMessages != nil) {
-        _loadingMessages();
-        _loadingMessages = nil;
-    }
-    if (_listeningToEvents != nil) {
-        _listeningToEvents();
-        _listeningToEvents = nil;
-    }
-    [IQChannels removeListener:self];
+    [self clearAll];
+    [IQChannels removeLoginListener:self];
 }
 
+#pragma mark Clear all
+
+- (void)clearAll {
+    [self clearUserTyping];
+    [self clearSyncEvents];
+    [self clearMessages];
+    [self clearClientAndSender];
+}
+
+#pragma mark Client and sender
+
 - (NSString *)senderId {
-    return _senderId;
+    return _senderId ? _senderId : @"";
 }
 
 - (NSString *)senderDisplayName {
-    return @"Client";
+    return _client && _client.Name ? _client.Name : @"Client";
 }
 
-- (void)clear {
-    _senderId = @"";
-    _thread = nil;
+- (void)clearClientAndSender {
+    _client = nil;
+    _senderId = nil;
+}
+
+- (void)setClientAndSender:(IQClient *)client {
+    _client = client;
+    _senderId = [IQChannelMessageViewData senderIdWithClientId:client.Id];
+}
+
+#pragma mark RefreshControl
+
+- (void)addRefreshControl {
+    if (_refreshControl != nil) {
+        return;
+    }
+
+    _refreshControl = [[UIRefreshControl alloc] init];
+    [_refreshControl addTarget:self action:@selector(refresh:) forControlEvents:UIControlEventValueChanged];
+    [self.collectionView addSubview:_refreshControl];
+}
+
+- (void)clearRefreshControl {
+    if (_refreshControl == nil) {
+        return;
+    }
+
+    [_refreshControl removeFromSuperview];
+    _refreshControl = nil;
 }
 
 - (void)refresh:(id)sender {
     [self loadMoreMessages];
 }
 
-- (void)userInteractionEnable {
+#pragma mark InputToolbar
+
+- (void)inputToolbarEnableInteraction {
     self.inputToolbar.contentView.textView.editable = YES;
     self.inputToolbar.contentView.leftBarButtonItem.enabled = YES;
 }
 
-- (void)userInteractionDisable {
+- (void)inputToolbarDisableInteraction {
     self.inputToolbar.contentView.textView.editable = NO;
     self.inputToolbar.contentView.leftBarButtonItem.enabled = NO;
 }
 
-- (void)reloadData {
-    [self.collectionView reloadData];
-    [self reloadThreadData];
-}
+#pragma mark Messages
 
-- (void)reloadThreadData {
-    int64_t now = (int64_t) ([[NSDate date] timeIntervalSince1970] * 1000);
-    BOOL typing = (now - _thread.UserTypingAt) < 2000;
-    self.showTypingIndicator = typing;
-
-    if (typing && !_typingEndScheduled) {
-        dispatch_time_t timeout = [IQTimeout timeWithTimeoutSeconds:2];
-        dispatch_after(timeout, dispatch_get_main_queue(), ^{
-            _typingEndScheduled = NO;
-            [self reloadData];
-        });
-    }
-}
-
-#pragma mark loadThread
-
-- (void)loadThread {
-    if (_sessionState != IQChannelsSessionStateAuthenticated) {
-        return;
+- (void)clearMessages {
+    if (_loadingMessages != nil) {
+        _loadingMessages();
     }
 
-    IQChannelThreadQuery *query = [[IQChannelThreadQuery alloc] initWithMessagesLimit:@(25)];
-    _loadingThread = [IQChannels loadThread:query callback:^(IQChannelThread *thread, NSError *error) {
-        if (error != nil) {
-            [self failedToLoadThreadWithError:error];
-            return;
-        }
-        [self loadedThread:thread];
-    }];
-    [_refreshControl beginRefreshing];
-}
-
-- (void)loadedThread:(IQChannelThread *)thread {
-    if (_loadingThread == nil) {
-        return;
-    }
-    _loadingThread = nil;
-    [_refreshControl endRefreshing];
-
-    _thread = [thread copy];
-    [self reloadData];
-    [self finishReceivingMessage];
-    [self userInteractionEnable];
-    [self listenToEvents];
-}
-
-- (void)failedToLoadThreadWithError:(NSError *)error {
-    if (_loadingMessages == nil) {
-        return;
-    }
+    _loadedMessages = NO;
     _loadingMessages = nil;
-    [_refreshControl endRefreshing];
-
-    UIAlertView *alert = [error iq_toAlertView];
-    [alert show];
+    _messages = [[IQChannelMessageViewArray alloc] init];
+    [_messagesIndicator stopAnimating];
+    [self clearRefreshControl];
 }
 
-#pragma mark loadMessages
-
-- (void)loadMoreMessages {
-    if (_sessionState != IQChannelsSessionStateAuthenticated) {
+- (void)loadMessages {
+    if (_loginState != IQChannelsLoginComplete) {
         return;
     }
-    if (_thread == nil) {
+    if (_loadedMessages) {
         return;
     }
     if (_loadingMessages != nil) {
         return;
     }
 
+    _messagesIndicator.label.text = [NSBundle iq_channelsLocalizedStringForKey:@"iqchannels.loading" value:@"Загрузка..."];
+    [_messagesIndicator startAnimating];
+
     IQChannelMessagesQuery *query = [[IQChannelMessagesQuery alloc] init];
-    if (_thread.Messages.count > 0) {
-        query.MaxId = @(_thread.Messages[0].Id);
+    _loadingMessages = [IQChannels loadMessages:query callback:^(NSArray<IQChannelMessage *> *messages, NSError *error) {
+        [_messagesIndicator stopAnimating];
+        if (error != nil) {
+            [self loadMessagesFailedWithError:error];
+            return;
+        }
+
+        [self loadedMessages:messages];
+    }];
+}
+
+- (void)loadMessagesFailedWithError:(NSError *)error {
+    if (_loadingMessages == nil) {
+        return;
     }
 
-    _loadingMessages = [IQChannels loadMessages:query
-        callback:^(NSArray<IQChannelMessage *> *array, NSError *error) {
-            if (error != nil) {
-                [self failedToLoadMessagesWithError:error];
-                return;
-            }
-
-            [self loadedMessages:array];
-        }];
+    _loadingMessages = nil;
+    UIAlertView *alertView = [UIAlertView iq_alertViewWithError:error];
+    [alertView show];
 }
 
 - (void)loadedMessages:(NSArray<IQChannelMessage *> *)messages {
     if (_loadingMessages == nil) {
         return;
     }
+
     _loadingMessages = nil;
-    [_refreshControl endRefreshing];
+    _loadedMessages = YES;
+    _messages = [[IQChannelMessageViewArray alloc] initWithClientId:_client.Id messages:messages];
 
-    // Add loaded messages to the thread.
-    [_thread prependMessages:messages];
-
-    // Allow the refresh control to hide before reloading the data.
-    dispatch_time_t timeout = [IQTimeout timeWithTimeoutSeconds:0.3];
-    dispatch_after(timeout, dispatch_get_main_queue(), ^{
-        [self reloadData];
+    [self addRefreshControl];
+    [self inputToolbarEnableInteraction];
+    [self syncEvents];
+    [self.collectionView reloadData];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self finishReceivingMessageAnimated:NO];
     });
 }
 
-- (void)failedToLoadMessagesWithError:(NSError *)error {
-    if (_loadingMessages == nil) {
+#pragma mark More messages
+
+- (void)loadMoreMessages {
+    if (_loginState != IQChannelsLoginComplete) {
         return;
     }
-    _loadingMessages = nil;
-    [_refreshControl endRefreshing];
-
-    UIAlertView *alert = [error iq_toAlertView];
-    [alert show];
-}
-
-#pragma mark listenToEvents
-
-- (void)listenToEvents {
-    if (_sessionState != IQChannelsSessionStateAuthenticated) {
+    if (!_loadedMessages) {
         return;
     }
-    if (_listeningToEvents != nil) {
+    if (_loadingMessages != nil) {
         return;
     }
 
-    _listeningToEvents = [IQChannels listenToEvents:_thread.EventId callback:^(NSArray<IQChannelEvent *> *events) {
-        [self receivedEvents:events];
+    NSNumber *maxId = _messages.minMessageId;
+    if (maxId == nil) {
+        [_refreshControl endRefreshing];
+        return;
+    }
+
+    IQChannelMessagesQuery *query = [[IQChannelMessagesQuery alloc] initWithMaxId:maxId];
+    _loadingMessages = [IQChannels loadMessages:query callback:^(NSArray<IQChannelMessage *> *messages, NSError *error) {
+        [_refreshControl endRefreshing];
+        if (error != nil) {
+            [self loadMoreMessagesFailedWithError:error];
+            return;
+        }
+
+        [self loadedMoreMessages:messages];
     }];
 }
 
-- (void)receivedEvents:(NSArray<IQChannelEvent *> *)events {
-    [_thread applyEvents:events];
-    [self reloadData];
+- (void)loadMoreMessagesFailedWithError:(NSError *)error {
+    if (_loadingMessages == nil) {
+        return;
+    }
+
+    _loadingMessages = nil;
+    UIAlertView *alertView = [UIAlertView iq_alertViewWithError:error];
+    [alertView show];
+}
+
+- (void)loadedMoreMessages:(NSArray<IQChannelMessage *> *)messages {
+    if (_loadingMessages == nil) {
+        return;
+    }
+
+    _loadingMessages = nil;
+    if (messages.count == 0) {
+        return;
+    }
+
+    [_messages prependMessages:messages];
+    [self.collectionView reloadData];
+}
+
+#pragma mark Sync events
+
+- (void)syncEvents {
+    if (_loginState != IQChannelsLoginComplete) {
+        return;
+    }
+    if (!_loadedMessages) {
+        return;
+    }
+    if (_syncingEvents != nil) {
+        return;
+    }
+
+    NSNumber *lastEventId = _messages.maxEventId;
+    _syncingEvents = [IQChannels syncEvents:lastEventId
+        callback:^(IQChannelsSyncEventsState state, NSArray<IQChannelEvent *> *array, NSError *error) {
+            if (error != nil) {
+                [self syncEventsFailedWithError:error];
+                return;
+            }
+
+            [self syncEventsReceivedState:state events:array];
+        }];
+}
+
+- (void)syncEventsFailedWithError:(NSError *)error {
+    if (_syncingEvents == nil) {
+        return;
+    }
+
+    // It must be a logged out error.
+    _syncingEvents();
+    _syncingEvents = nil;
+}
+
+- (void)syncEventsReceivedState:(IQChannelsSyncEventsState)state events:(NSArray<IQChannelEvent *> *)events {
+    if (_syncingEvents == nil) {
+        return;
+    }
+
+    if (_syncEventsState != state) {
+        _syncEventsState = state;
+        switch (state) {
+            case IQChannelsSyncEventsInitial:
+            case IQChannelsSyncEventsFailed:
+            case IQChannelsSyncEventsClosed: {
+                self.navigationItem.title = _navigationItemTitle;
+                break;
+            }
+            case IQChannelsSyncEventsWaitingForNetwork: {
+                self.navigationItem.title = [NSBundle iq_channelsLocalizedStringForKey:@"iqchannels.waiting_for_net"
+                    value:@"Ожидание сети..."];
+                break;
+            }
+            case IQChannelsSyncEventsConnecting: {
+                self.navigationItem.title = [NSBundle iq_channelsLocalizedStringForKey:@"iqchannels.connecting" value:@"Подключение..."];
+                break;
+            }
+            case IQChannelsSyncEventsInProgress: {
+                self.navigationItem.title = _navigationItemTitle;
+                break;
+            }
+        }
+    }
+
+    for (IQChannelEvent *event in events) {
+        [self applyEvent:event];
+    }
+}
+
+- (void)clearSyncEvents {
+    if (_syncingEvents != nil) {
+        _syncingEvents();
+        _syncingEvents = nil;
+    }
+
+    _syncEventsState = IQChannelsSyncEventsInitial;
+}
+
+- (void)applyEvent:(IQChannelEvent *)event {
+    if ([event.Type isEqualToString:IQChannelEventTyping]) {
+        if (event.UserId != nil) {
+            [self setUserTypingAt:event.CreatedAt];
+        }
+        return;
+    }
+
+    BOOL created = NO;
+    NSUInteger updated = 0;
+    [_messages applyEvent:event created:&created updated:&updated];
+
+    if (created) {
+        [self finishReceivingMessage];
+    } else if (updated > 0) {
+        [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:updated inSection:0]]];
+    }
+}
+
+#pragma mark Typing
+
+- (void)setUserTypingAt:(int64_t)typingAt {
+    if (typingAt < _userTypingAt) {
+        return;
+    }
+
+    _userTypingAt = typingAt;
+    if (![self userIsTyping]) {
+        return;
+    }
+
+    self.showTypingIndicator = YES;
+    [self maybeScheduleUserTypingTimeout];
+}
+
+- (BOOL)userIsTyping {
+    int64_t now = (int64_t) ([NSDate date].timeIntervalSince1970 * 1000);
+    return now < _userTypingAt + 2000;
+}
+
+- (void)maybeScheduleUserTypingTimeout {
+    if (_userTypingTimeoutScheduled) {
+        return;
+    }
+
+    _userTypingTimeoutScheduled = YES;
+    dispatch_time_t time = [IQTimeout timeWithTimeoutSeconds:2];
+    dispatch_after(time, dispatch_get_main_queue(), ^{
+        [self userTypingTimeout];
+    });
+}
+
+- (void)userTypingTimeout {
+    if (!_userTypingTimeoutScheduled) {
+        return;
+    }
+    _userTypingTimeoutScheduled = NO;
+
+    if ([self userIsTyping]) {
+        [self maybeScheduleUserTypingTimeout];
+    } else {
+        self.showTypingIndicator = NO;
+    }
+}
+
+- (void)clearUserTyping {
+    _userTypingAt = 0;
+    _userTypingTimeoutScheduled = NO;
+}
+
+#pragma mark IQChannelsLoginListener
+
+- (void)channelsLoginStateChanged:(IQChannelsLoginState)state {
+    if (_loginState == state) {
+        return;
+    }
+
+    _loginState = state;
+    switch (state) {
+        case IQChannelsLoginLoggedOut: {
+            [self clearAll];
+
+            [_loginIndicator stopAnimating];
+            [self inputToolbarDisableInteraction];
+            break;
+        }
+
+        case IQChannelsLoginWaitingForNetwork: {
+            [_loginIndicator startAnimating];
+            _loginIndicator.label.text = [NSBundle iq_channelsLocalizedStringForKey:
+                @"iqchannels.login_waiting_for_net" value:@"Ожидание сети..."];
+
+            [self inputToolbarDisableInteraction];
+            break;
+        }
+
+        case IQChannelsLoginInProgress: {
+            [_loginIndicator startAnimating];
+            _loginIndicator.label.text = [NSBundle iq_channelsLocalizedStringForKey:
+                @"iqchannels.login_in_progress" value:@"Авторизация..."];
+
+            [self inputToolbarDisableInteraction];
+            break;
+        }
+
+        case IQChannelsLoginComplete: {
+            [_loginIndicator stopAnimating];
+            _loginIndicator.label.text = @"";
+
+            IQClient *client = [IQChannels loginClient];
+            [self setClientAndSender:client];
+            [self loadMessages];
+            break;
+        }
+    }
 }
 
 #pragma mark JSQMessagesViewController
 
 - (void)textViewDidChange:(UITextView *)textView {
     [super textViewDidChange:textView];
-    [IQChannels typing];
+    [IQChannels sendTyping];
 }
 
 - (void)didPressAccessoryButton:(UIButton *)sender {
@@ -256,35 +525,30 @@
 - (void)didPressSendButton:(UIButton *)button withMessageText:(NSString *)text
                   senderId:(NSString *)senderId senderDisplayName:(NSString *)senderDisplayName
                       date:(NSDate *)date {
-    if (_senderId == nil || [_senderId isEqualToString:@""]) {
+    if (!_loadedMessages) {
         return;
     }
 
     IQChannelMessageForm *form = [[IQChannelMessageForm alloc] initWithText:text];
     IQChannelMessage *message = [IQChannels sendMessage:form];
-    [_thread appendMessage:message];
-    [self finishSendingMessageAnimated:YES];
+    [_messages appendMessage:message];
+    [self finishSendingMessage];
 }
 
 #pragma mark JSQMessagesCollectionViewDataSource
 
-- (id <JSQMessageData>)collectionView:(JSQMessagesCollectionView *)collectionView
-        messageDataForItemAtIndexPath:(NSIndexPath *)indexPath {
-    return _thread.Messages[(NSUInteger) indexPath.item];
+- (id <JSQMessageData>)collectionView:(JSQMessagesCollectionView *)collectionView messageDataForItemAtIndexPath:(NSIndexPath *)indexPath {
+    return _messages.items[(NSUInteger) indexPath.item];
 }
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    if (_thread.Messages == nil) {
-        return 0;
-    }
-
-    return _thread.Messages.count;
+    return _messages.items.count;
 }
 
 - (id <JSQMessageBubbleImageDataSource>)collectionView:(JSQMessagesCollectionView *)collectionView
               messageBubbleImageDataForItemAtIndexPath:(NSIndexPath *)indexPath {
-    IQChannelMessage *message = _thread.Messages[(NSUInteger) indexPath.item];
-    if ([message.Author isEqualToString:IQChannelAuthorClient]) {
+    IQChannelMessageViewData *data = _messages.items[(NSUInteger) indexPath.item];
+    if ([data.message.Author isEqualToString:IQChannelAuthorClient]) {
         return _outgoingBubble;
     } else {
         return _incomingBubble;
@@ -300,35 +564,16 @@
                   cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     JSQMessagesCollectionViewCell *cell = [super collectionView:collectionView cellForItemAtIndexPath:indexPath];
 
-    IQChannelMessage *message = _thread.Messages[(NSUInteger) indexPath.item];
-    if ([message.Author isEqualToString:IQChannelAuthorClient]) {
+    IQChannelMessageViewData *data = _messages.items[(NSUInteger) indexPath.item];
+    if ([data.message.Author isEqualToString:IQChannelAuthorClient]) {
         cell.textView.textColor = [UIColor whiteColor];
     } else {
         cell.textView.textColor = [UIColor blackColor];
-        [IQChannels readMessage:message.Id];
+
+        if (!data.message.Read) {
+            [IQChannels sendReadMessage:data.message.Id];
+        }
     }
     return cell;
-}
-
-#pragma mark IQChannelsListener
-
-- (void)channelsSessionAuthenticating:(IQChannelsSession *)session {
-    _sessionState = IQChannelsSessionStateAuthenticating;
-    [_refreshControl beginRefreshing];
-    [self userInteractionDisable];
-}
-
-- (void)channelsSessionAuthenticated:(IQChannelsSession *)session {
-    _senderId = [IQChannelMessage senderIdWithClientId:session.authentication.ClientId];
-    _sessionState = IQChannelsSessionStateAuthenticated;
-    [_refreshControl endRefreshing];
-
-    [self loadThread];
-}
-
-- (void)channelsSessionClosed {
-    _sessionState = IQChannelsSessionStateClosed;
-    [self clear];
-    [self userInteractionDisable];
 }
 @end

@@ -7,8 +7,8 @@
 @class IQError;
 
 
-extern NSString *const IQErrorDomain;
-extern NSString *const IQErrorUserInfoKey;
+extern NSString *_Nonnull const IQErrorDomain;
+extern NSString *_Nonnull const IQErrorUserInfoKey;
 
 extern NSInteger const IQErrorUnknown;
 extern NSInteger const IQErrorAppError;
@@ -16,7 +16,7 @@ extern NSInteger const IQErrorClientError;
 
 
 @interface NSError (IQChannels)
-+ (NSError *_Nonnull)iq_authRequired;
++ (NSError *_Nonnull)iq_loggedOut;
 + (NSError *_Nonnull)iq_appErrorWithLocalizedDescription:(NSString *_Nullable)text;
 
 + (NSError *_Nonnull)iq_clientError;
@@ -25,6 +25,4 @@ extern NSInteger const IQErrorClientError;
 
 - (BOOL)iq_isAppError;
 - (IQError *_Nullable)iq_appError;
-
-- (UIAlertView *_Nonnull)iq_toAlertView;
 @end

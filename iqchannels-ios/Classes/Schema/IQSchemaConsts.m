@@ -23,7 +23,7 @@ IQChannelAuthorType const IQChannelAuthorClient = @"client";
 
 IQChannelPayloadType const IQChannelPayloadInvalid = @"";
 IQChannelPayloadType const IQChannelPayloadText = @"text";
-IQChannelPayloadType const IQChannelPayloadEvent = @"event";
+IQChannelPayloadType const IQChannelPayloadFile = @"file";
 
 
 IQChannelEventType const IQChannelEventInvalid = @"";

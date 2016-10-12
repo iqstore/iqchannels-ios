@@ -223,3 +223,11 @@
     return nil;
 }
 @end
+
+
+@implementation IQChannelThread (Local)
+- (BOOL) UserIsTyping {
+    int64_t now = (int64_t) ([[NSDate date] timeIntervalSince1970] * 1000);
+    return (now - self.UserTypingAt) < 2000;
+}
+@end

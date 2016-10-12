@@ -35,8 +35,7 @@ pod install
 Обычно SDK будет инициализированно в `AppDelegate.m` приложения:
 
 ```objc
-#import <IQChannels/IQChannels.h>
-#import <IQChannels/IQChannelsConfig.h>
+#import <IQChannels/SDK.h>
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Создаем объект конфигурации, заполняем адрес и название канала (чата).

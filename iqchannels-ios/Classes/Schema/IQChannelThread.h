@@ -46,3 +46,8 @@
 - (void)appendOutgoingMessage:(IQChannelMessage *_Nullable)message;
 - (void)prependMessages:(NSArray<IQChannelMessage *> *_Nullable)messages;
 @end
+
+
+@interface IQChannelThread (Local)
+@property (nonatomic, readonly) BOOL UserIsTyping;
+@end

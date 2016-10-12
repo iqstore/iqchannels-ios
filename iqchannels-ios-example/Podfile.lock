@@ -15,7 +15,7 @@ EXTERNAL SOURCES:
     :path: ../
 
 SPEC CHECKSUMS:
-  IQChannels: d85a1fca69bcb5a619fee1fd67d5fd9f1e96d4eb
+  IQChannels: 157355058b4426330d667127c7cb1d0021d62348
   JSQMessagesViewController: 39fed975e3c9f8eba7292071e29eeb541d105e66
   JSQSystemSoundPlayer: c5850e77a4363ffd374cd851154b9af93264ed8d
   TRVSEventSource: 19fb940e0351ceb97125d46fd40cd55e339568d8

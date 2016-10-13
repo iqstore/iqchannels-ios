@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'IQChannels'
-  s.version          = '0.2.0'
+  s.version          = '0.2.1'
   s.summary          = 'IQChannels SDK'
   s.description      = <<-DESC
 IQChannels iOS SDK
@@ -19,6 +19,9 @@ IQChannels iOS SDK
   s.source           = { :git => 'https://github.com/iqstore/iqchannels-ios.git', :tag => s.version.to_s }
   s.ios.deployment_target = '8.0'
   s.source_files = 'iqchannels-ios/Classes/**/*'
+  s.resource_bundles = {
+    'IQChannels' => ['iqchannels-ios/Classes/UI/*.xib'],
+  }
 
   s.dependency 'TRVSEventSource', '0.0.8'
   s.dependency 'JSQMessagesViewController', '~> 7.3'

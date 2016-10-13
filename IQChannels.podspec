@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'IQChannels'
-  s.version          = '0.1.0'
+  s.version          = '0.2.0'
   s.summary          = 'IQChannels SDK'
   s.description      = <<-DESC
 IQChannels iOS SDK

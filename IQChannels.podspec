@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'IQChannels'
-  s.version          = '0.2.2'
+  s.version          = '0.2.3'
   s.summary          = 'IQChannels SDK'
   s.description      = <<-DESC
 IQChannels iOS SDK
@@ -20,8 +20,8 @@ IQChannels iOS SDK
 
   s.platform = :ios, '7.0'
   s.ios.deployment_target = '7.0'
-  s.source_files = 'iqchannels-ios/Classes/**/*.{h,m,xib}'
-  s.resource = 'iqchannels-ios/Classes/UI/*.xib'
+  s.resources = 'iqchannels-ios/Classes/UI/*.{xib}'
+  s.source_files = 'iqchannels-ios/Classes/**/*.{h,m}'
   s.requires_arc = true
 
   s.dependency 'TRVSEventSource', '0.0.8'

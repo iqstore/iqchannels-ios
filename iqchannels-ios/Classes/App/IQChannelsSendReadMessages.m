@@ -107,6 +107,7 @@
     }
 
     _cancel = nil;
+    _attempt = 0;
     [_session.logger info:@"Sent read messages"];
     [self sendReadMessages];
 }

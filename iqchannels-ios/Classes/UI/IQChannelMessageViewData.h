@@ -11,6 +11,7 @@
 
 @interface IQChannelMessageViewData : NSObject <JSQMessageData>
 @property(nonatomic, readonly, nonnull) IQChannelMessage *message;
+@property(nonatomic) BOOL showDate;
 
 - (instancetype _Nonnull)initWithMessage:(IQChannelMessage *_Nonnull)message;
 - (void)applyEvent:(IQChannelEvent *)event;

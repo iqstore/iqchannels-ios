@@ -81,16 +81,20 @@
 - (void)appendMessage:(IQChannelMessage *_Nonnull)message {
     IQChannelMessageViewData *data = [[IQChannelMessageViewData alloc] initWithMessage:message];
     [_items addObject:data];
-    [self updateMessageIndexes:data];
+
+    [self updateIndexes:data];
+    [self updateDates];
 }
 
 - (void)prependMessage:(IQChannelMessage *_Nonnull)message {
     IQChannelMessageViewData *data = [[IQChannelMessageViewData alloc] initWithMessage:message];
     [_items insertObject:data atIndex:0];
-    [self updateMessageIndexes:data];
+
+    [self updateIndexes:data];
+    [self updateDates];
 }
 
-- (void)updateMessageIndexes:(IQChannelMessageViewData *)data {
+- (void)updateIndexes:(IQChannelMessageViewData *)data {
     IQChannelMessage *message = data.message;
     if (message.Id != 0) {
         _itemsByIds[@(message.Id)] = data;
@@ -99,6 +103,27 @@
         && message.ClientId.longLongValue == _clientId
         && message.LocalId != 0) {
         _itemsByLocalIds[@(message.LocalId)] = data;
+    }
+}
+
+- (void)updateDates {
+    NSDateComponents *prev = nil;
+
+    for (IQChannelMessageViewData *item in _items) {
+        NSDateComponents *cur = [[NSCalendar currentCalendar]
+            components:NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay
+            fromDate:item.date];
+
+        if (prev != nil
+            && cur.year == prev.year
+            && cur.month == prev.month
+            && cur.day == prev.day) {
+            item.showDate = NO;
+
+        } else {
+            item.showDate = YES;
+            prev = cur;
+        }
     }
 }
 
@@ -131,7 +156,8 @@
             *updated = [_items indexOfObject:item];
         }
 
-        [self updateMessageIndexes:item];
+        [self updateIndexes:item];
+        [self updateDates];
         return;
     }
 
@@ -142,6 +168,7 @@
 
     [item applyEvent:event];
     *updated = [_items indexOfObject:item];
-    [self updateMessageIndexes:item];
+    [self updateIndexes:item];
+    [self updateDates];
 }
 @end

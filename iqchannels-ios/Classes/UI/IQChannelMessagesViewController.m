@@ -576,4 +576,61 @@
     }
     return cell;
 }
+
+// Message date
+
+- (NSAttributedString *)  collectionView:(JSQMessagesCollectionView *)collectionView
+attributedTextForCellTopLabelAtIndexPath:(NSIndexPath *)indexPath {
+    IQChannelMessageViewData *item = _messages.items[(NSUInteger) indexPath.item];
+    if (!item.showDate) {
+        return nil;
+    }
+
+    return [[JSQMessagesTimestampFormatter sharedFormatter] attributedTimestampForDate:item.date];
+}
+
+- (CGFloat)       collectionView:(JSQMessagesCollectionView *)collectionView
+                          layout:(JSQMessagesCollectionViewFlowLayout *)collectionViewLayout
+heightForCellTopLabelAtIndexPath:(NSIndexPath *)indexPath {
+    IQChannelMessageViewData *item = _messages.items[(NSUInteger) indexPath.item];
+    if (!item.showDate) {
+        return 0.0f;
+    }
+    return kJSQMessagesCollectionViewCellLabelHeightDefault;
+}
+
+// Message time
+
+- (NSAttributedString *)     collectionView:(JSQMessagesCollectionView *)collectionView
+attributedTextForCellBottomLabelAtIndexPath:(NSIndexPath *)indexPath {
+    IQChannelMessageViewData *item = _messages.items[(NSUInteger) indexPath.item];
+    if (item.message.CreatedAt == 0) {
+        return nil;
+    }
+
+    NSMutableParagraphStyle *style = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
+    if ([item.message.Author isEqualToString:IQChannelAuthorClient]) {
+        style.alignment = NSTextAlignmentRight;
+    } else {
+        style.alignment = NSTextAlignmentLeft;
+    }
+
+    NSString *time = [[JSQMessagesTimestampFormatter sharedFormatter] timeForDate:item.date];
+    time = [NSString stringWithFormat:@"     %@     ", time];
+    return [[NSMutableAttributedString alloc] initWithString:time attributes:@{
+        NSFontAttributeName: [UIFont systemFontOfSize:10.0f],
+        NSForegroundColorAttributeName: [UIColor lightGrayColor],
+        NSParagraphStyleAttributeName: style
+    }];
+}
+
+- (CGFloat)          collectionView:(JSQMessagesCollectionView *)collectionView
+                             layout:(JSQMessagesCollectionViewFlowLayout *)collectionViewLayout
+heightForCellBottomLabelAtIndexPath:(NSIndexPath *)indexPath {
+    IQChannelMessageViewData *item = _messages.items[(NSUInteger) indexPath.item];
+    if (item.message.CreatedAt == 0) {
+        return 0.0f;
+    }
+    return kJSQMessagesCollectionViewCellLabelHeightDefault;
+}
 @end

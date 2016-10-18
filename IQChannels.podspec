@@ -8,24 +8,22 @@
 
 Pod::Spec.new do |s|
   s.name             = 'IQChannels'
-  s.version          = '0.2.1'
+  s.version          = '0.2.2'
   s.summary          = 'IQChannels SDK'
   s.description      = <<-DESC
 IQChannels iOS SDK
                        DESC
 
   s.homepage         = 'https://github.com/iqstore/iqchannels-ios'
-  s.author           = { 'Ivan Korobkov' => 'ivan.korobkov@bigdev.ru' }
+  s.author           = { 'Ivan Korobkov' => 'i.korobkov@iqstore.ru' }
   s.source           = { :git => 'https://github.com/iqstore/iqchannels-ios.git', :tag => s.version.to_s }
-  s.ios.deployment_target = '8.0'
-  s.source_files = 'iqchannels-ios/Classes/**/*'
-  s.resource_bundles = {
-    'IQChannels' => ['iqchannels-ios/Classes/UI/*.xib'],
-  }
+
+  s.platform = :ios, '7.0'
+  s.ios.deployment_target = '7.0'
+  s.source_files = 'iqchannels-ios/Classes/**/*.{h,m,xib}'
+  s.resource = 'iqchannels-ios/Classes/UI/*.xib'
+  s.requires_arc = true
 
   s.dependency 'TRVSEventSource', '0.0.8'
   s.dependency 'JSQMessagesViewController', '~> 7.3'
-
-  # s.public_header_files = 'Pod/Classes/**/*.h'
-  # s.frameworks = 'UIKit', 'MapKit'
 end

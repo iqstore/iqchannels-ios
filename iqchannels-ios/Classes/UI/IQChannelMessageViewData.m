@@ -30,7 +30,11 @@
         _senderDisplayName = _message.User && _message.User.Name ? _message.User.Name : @"User";
     }
 
-    _date = [NSDate dateWithTimeIntervalSince1970:_message.CreatedAt / 1000.0];
+    if (_message.CreatedAt == 0) {
+        _date = [NSDate date];
+    } else {
+        _date = [NSDate dateWithTimeIntervalSince1970:_message.CreatedAt / 1000.0];
+    }
     _hash = [IQChannelMessageViewData hashWithMessage:_message];
     return self;
 }

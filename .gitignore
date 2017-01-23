@@ -1,10 +1,9 @@
-# Go
-/pkg
-/var
+# Project
 /coverage.out
-/dist/
-dist.tar.gz
-
+/build
+build.tar.gz
+build.zip
+/clusters/local/var
 
 # OSX
 .DS_Store
@@ -22,13 +21,6 @@ out/
 
 # Ansible
 *.retry
-
-# NodeJS
-node_modules
-npm-debug.log
-web/public/build
-web/public/stats.json
-web/result
 
 
 # Xcode
@@ -62,3 +54,7 @@ Carthage
 # `pod install` in .travis.yml
 #
 Pods/
+
+# Vagrant
+.vagrant
+

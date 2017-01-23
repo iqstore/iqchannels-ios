@@ -1,0 +1,30 @@
+PODS:
+  - IQChannels (0.2.3):
+    - JSQMessagesViewController (~> 7.3)
+    - SDWebImage (~> 3.8)
+    - TRVSEventSource (= 0.0.8)
+  - JSQMessagesViewController (7.3.4):
+    - JSQSystemSoundPlayer (~> 2.0.1)
+  - JSQSystemSoundPlayer (2.0.1)
+  - SDWebImage (3.8.2):
+    - SDWebImage/Core (= 3.8.2)
+  - SDWebImage/Core (3.8.2)
+  - TRVSEventSource (0.0.8)
+
+DEPENDENCIES:
+  - IQChannels (from `../`)
+
+EXTERNAL SOURCES:
+  IQChannels:
+    :path: ../
+
+SPEC CHECKSUMS:
+  IQChannels: 45d8cf6a26e717700ea0e4f2ec3f0426592684e2
+  JSQMessagesViewController: 39fed975e3c9f8eba7292071e29eeb541d105e66
+  JSQSystemSoundPlayer: c5850e77a4363ffd374cd851154b9af93264ed8d
+  SDWebImage: 098e97e6176540799c27e804c96653ee0833d13c
+  TRVSEventSource: 19fb940e0351ceb97125d46fd40cd55e339568d8
+
+PODFILE CHECKSUM: 35dee5a59fb44d04e505d79f5478ddcec4334e29
+
+COCOAPODS: 1.1.1

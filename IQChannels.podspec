@@ -18,12 +18,13 @@ IQChannels iOS SDK
   s.author           = { 'Ivan Korobkov' => 'i.korobkov@iqstore.ru' }
   s.source           = { :git => 'https://github.com/iqstore/iqchannels-ios.git', :tag => s.version.to_s }
 
-  s.platform = :ios, '7.0'
-  s.ios.deployment_target = '7.0'
-  s.resources = 'iqchannels-ios/Classes/UI/*.{xib}'
-  s.source_files = 'iqchannels-ios/Classes/**/*.{h,m}'
+  s.platform = :ios, '8.0'
+  s.ios.deployment_target = '8.0'
+  s.resources = 'ios/Classes/UI/*.{xib}'
+  s.source_files = 'ios/Classes/**/*.{h,m}'
   s.requires_arc = true
 
-  s.dependency 'TRVSEventSource', '0.0.8'
   s.dependency 'JSQMessagesViewController', '~> 7.3'
+  s.dependency 'SDWebImage', '~>3.8'
+  s.dependency 'TRVSEventSource', '0.0.8'
 end

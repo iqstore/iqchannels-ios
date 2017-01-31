@@ -854,11 +854,13 @@ heightForCellBottomLabelAtIndexPath:(NSIndexPath *)indexPath {
     switch (status) {
         case AVAuthorizationStatusNotDetermined: {
             [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
-                if (!granted) {
-                    return;
-                }
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    if (!granted) {
+                        return;
+                    }
 
-                [self showImagePicker:UIImagePickerControllerSourceTypeCamera];
+                    [self showImagePicker:UIImagePickerControllerSourceTypeCamera];
+                });
             }];
             break;
         }
@@ -889,14 +891,16 @@ heightForCellBottomLabelAtIndexPath:(NSIndexPath *)indexPath {
     switch (status) {
         case PHAuthorizationStatusNotDetermined: {
             [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status0) {
-                switch (status0) {
-                    case PHAuthorizationStatusRestricted:
-                    case PHAuthorizationStatusAuthorized:
-                        [self showImagePicker:UIImagePickerControllerSourceTypePhotoLibrary];
-                        break;
-                    default:
-                        break;
-                }
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    switch (status0) {
+                        case PHAuthorizationStatusRestricted:
+                        case PHAuthorizationStatusAuthorized:
+                            [self showImagePicker:UIImagePickerControllerSourceTypePhotoLibrary];
+                            break;
+                        default:
+                            break;
+                    }
+                });
             }];
             break;
         }

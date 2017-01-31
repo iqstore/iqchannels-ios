@@ -17,7 +17,7 @@ SDK для айфона сделано как библиотека для Cocoap
 Добавить `IQChannels` в зависимости в `Podfile` проекта:
 ```
 # Podfile
-pod 'IQChannels', :git => 'https://github.com/iqstore/iqchannels-ios.git', :tag => '1.0.0-rc2'
+pod 'IQChannels', :git => 'https://github.com/iqstore/iqchannels-ios.git', :tag => '1.0.0-rc3'
 ```
 
 Установить зависимости:

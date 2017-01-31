@@ -33,14 +33,18 @@
 
 @implementation IQChannelMessagesViewController {
     IQClient *_client;
+    BOOL _visible;
 
     IQChannelsState _state;
     IQSubscription *_stateSub;
 
-    NSMutableArray<IQChatMessage *> *_messages;
     BOOL _messagesLoaded;
+    NSMutableArray<IQChatMessage *> *_messages;
+    NSMutableSet<NSNumber *> *_readMessages;
+
     IQSubscription *_messagesSub;
     IQSubscription *_moreMessagesLoading;
+
 
     // Action sheets
     UIActionSheet *_pickerActionSheet;
@@ -161,8 +165,22 @@
     _stateSub = [IQChannels state:self];
 }
 
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    _visible = YES;
+
+    if (_readMessages.count > 0) {
+        for (NSNumber *messageId in _readMessages) {
+            [IQChannels markAsRead:messageId.longLongValue];
+        }
+        [_readMessages removeAllObjects];
+    }
+}
+
+
 - (void)viewDidDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
+    _visible = NO;
 }
 
 #pragma mark RefreshControl
@@ -262,6 +280,7 @@
     [_messagesSub unsubscribe];
 
     _messages = [[NSMutableArray alloc] init];
+    _readMessages = [[NSMutableSet alloc] init];
     _messagesSub = nil;
     _messagesLoaded = NO;
 }
@@ -304,6 +323,7 @@
     CGFloat prevOffsetReversed = self.collectionView.contentSize.height - self.collectionView.contentOffset.y;
 
     _messages = [[NSMutableArray alloc] initWithArray:messages];
+    _readMessages = [[NSMutableSet alloc] init];
     _messagesLoaded = YES;
 
     [_messagesIndicator stopAnimating];
@@ -581,7 +601,11 @@
         cell.textView.textColor = [UIColor blackColor];
 
         if (!message.Read) {
-            [IQChannels markAsRead:message.Id];
+            if (_visible) {
+                [IQChannels markAsRead:message.Id];
+            } else {
+                [_readMessages addObject:@(message.Id)];
+            }
         }
     }
     if (message.isMediaMessage) {
@@ -840,9 +864,12 @@ heightForCellBottomLabelAtIndexPath:(NSIndexPath *)indexPath {
         }
 
         case AVAuthorizationStatusDenied: {
+            NSString *appName = [[[NSBundle mainBundle] infoDictionary] objectForKey:(id) kCFBundleNameKey];
+            NSString *message = [NSString stringWithFormat:
+                    @"Разрешить доступ к камере можно в Настройках телефона > %@ > Камера.", appName];
             UIAlertController *alertController = [UIAlertController
-                    alertControllerWithTitle:@"Unable to access the Camera"
-                                     message:@"To enable access, go to Settings > Privacy > Camera and turn on Camera access for this app."
+                    alertControllerWithTitle:@"Нет доступа к камере"
+                                     message:message
                               preferredStyle:UIAlertControllerStyleAlert];
             UIAlertAction *ok = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil];
             [alertController addAction:ok];
@@ -875,9 +902,12 @@ heightForCellBottomLabelAtIndexPath:(NSIndexPath *)indexPath {
         }
 
         case PHAuthorizationStatusDenied: {
+            NSString *appName = [[[NSBundle mainBundle] infoDictionary] objectForKey:(id) kCFBundleNameKey];
+            NSString *message = [NSString stringWithFormat:
+                    @"Разрешить доступ к фотографиям можно в Настройках телефона > %@ > Фото.", appName];
             UIAlertController *alertController = [UIAlertController
-                    alertControllerWithTitle:@"Unable to access the Photos"
-                                     message:@"To enable access, go to Settings > Privacy > Camera and turn on Camera access for this app."
+                    alertControllerWithTitle:@"Нет доступа к фотографиям"
+                                     message:message
                               preferredStyle:UIAlertControllerStyleAlert];
             UIAlertAction *ok = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil];
             [alertController addAction:ok];

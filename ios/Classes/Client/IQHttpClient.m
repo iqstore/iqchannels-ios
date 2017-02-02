@@ -200,8 +200,8 @@
     }];
 }
 
-- (IQHttpRequest *)pushApnsToken:(NSString *)token callback:(IQHttpVoidCallback)callback {
-    NSString *path = @"/push/apns";
+- (IQHttpRequest *)pushChannel:(NSString *)channel apnsToken:(NSString *)token callback:(IQHttpVoidCallback)callback {
+    NSString *path = [NSString stringWithFormat:@"/push/channel/apns/%@", channel];
     NSDictionary *params = @{@"Token": token};
 
     return [self post:path json:params callback:^(IQResult *result, NSError *error) {

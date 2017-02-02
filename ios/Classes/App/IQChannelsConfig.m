@@ -18,6 +18,7 @@
     IQChannelsConfig *config = [[IQChannelsConfig alloc] init];
     config.address = [IQJSON stringFromObject:object key:@"address"];
     config.channel = [IQJSON stringFromObject:object key:@"channel"];
+    config.disableUnreadBadge = [IQJSON stringFromObject:object key:@"disableUnreadBadge"];
     return config;
 }
 
@@ -46,6 +47,9 @@
     if (_channel != nil) {
         d[@"channel"] = _channel;
     }
+    if (_disableUnreadBadge) {
+        d[@"disableUnreadBadge"] = @(_disableUnreadBadge);
+    }
     return d;
 }
 
@@ -53,6 +57,7 @@
     IQChannelsConfig *copy = [[IQChannelsConfig allocWithZone:zone] init];
     copy.channel = _channel;
     copy.address = _address;
+    copy.disableUnreadBadge = _disableUnreadBadge;
     return copy;
 }
 @end

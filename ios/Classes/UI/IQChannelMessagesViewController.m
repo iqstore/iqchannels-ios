@@ -790,7 +790,9 @@ heightForCellBottomLabelAtIndexPath:(NSIndexPath *)indexPath {
     }
 
     IQChatMessage *prev = _messages[index - 1];
-    return prev.My != message.My || (message.CreatedAt - prev.CreatedAt) > 60000;
+    return prev.My != message.My
+            || (prev.UserId && ![prev.UserId isEqual:message.UserId])
+            || (message.CreatedAt - prev.CreatedAt) > 60000;
 }
 
 - (BOOL)isGroupEnd:(NSIndexPath *)indexPath {
@@ -801,7 +803,9 @@ heightForCellBottomLabelAtIndexPath:(NSIndexPath *)indexPath {
     }
 
     IQChatMessage *next = _messages[index + 1];
-    return next.My != message.My || (next.CreatedAt - message.CreatedAt) > 60000;
+    return next.My != message.My
+            || (next.UserId && ![next.UserId isEqual:message.UserId])
+            || (next.CreatedAt - message.CreatedAt) > 60000;
 }
 
 #pragma mark UIActionSheetDelegate

@@ -373,7 +373,7 @@ const NSTimeInterval TYPING_DEBOUNCE_SEC = 1.5;
     }
 
     _apnsAttempt++;
-    _apnsSending = [_client pushApnsToken:_apnsToken callback:^(NSError *error) {
+    _apnsSending = [_client pushChannel:_config.channel apnsToken:_apnsToken callback:^(NSError *error) {
         dispatch_async(dispatch_get_main_queue(), ^{
             if (error) {
                 [self sendApnsTokenError:error];
@@ -424,6 +424,10 @@ const NSTimeInterval TYPING_DEBOUNCE_SEC = 1.5;
     _unread = nil;
     _unreadAttempt = 0;
     _unreadListening = nil;
+    if (!_config.disableUnreadBadge) {
+        [UIApplication sharedApplication].applicationIconBadgeNumber = _unread;
+    }
+
     [self notifyUnreadListeners];
 }
 
@@ -491,6 +495,9 @@ const NSTimeInterval TYPING_DEBOUNCE_SEC = 1.5;
 
     _unreadAttempt = 0;
     _unread = number ? number.integerValue : 0;
+    if (!_config.disableUnreadBadge) {
+        [UIApplication sharedApplication].applicationIconBadgeNumber = _unread;
+    }
     [_log debug:@"Received an unread event, unread=%@", number];
     [self notifyUnreadListeners];
 }

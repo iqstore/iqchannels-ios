@@ -62,5 +62,5 @@ typedef void (^IQHttpFileCallback)(IQFile *, NSError *);
 
 // Push
 
-- (IQHttpRequest *)pushApnsToken:(NSString *)token callback:(IQHttpVoidCallback)callback;
+- (IQHttpRequest *)pushChannel:(NSString *)channel apnsToken:(NSString *)token callback:(IQHttpVoidCallback)callback;
 @end

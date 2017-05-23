@@ -267,8 +267,8 @@
 
 - (NSURL *)requestUrl:(NSString *)path {
     NSString *address = _address ? _address : @"";
-    if ([address hasPrefix:@"/"]) {
-        address = [address substringFromIndex:1];
+    if ([address hasSuffix:@"/"]) {
+        address = [address substringToIndex:address.length - 1];
     }
 
     return [NSURL URLWithString:[NSString stringWithFormat:@"%@/public/api/v1%@", address, path]];

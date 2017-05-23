@@ -1,5 +1,5 @@
 PODS:
-  - IQChannels (0.2.3):
+  - IQChannels (1.0.0):
     - JSQMessagesViewController (~> 7.3)
     - SDWebImage (~> 3.8)
     - TRVSEventSource (= 0.0.8)
@@ -19,7 +19,7 @@ EXTERNAL SOURCES:
     :path: ../
 
 SPEC CHECKSUMS:
-  IQChannels: 45d8cf6a26e717700ea0e4f2ec3f0426592684e2
+  IQChannels: f5afc342eeda1513feb84f01436ee197a1449419
   JSQMessagesViewController: 39fed975e3c9f8eba7292071e29eeb541d105e66
   JSQSystemSoundPlayer: c5850e77a4363ffd374cd851154b9af93264ed8d
   SDWebImage: 098e97e6176540799c27e804c96653ee0833d13c

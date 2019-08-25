@@ -48,6 +48,8 @@
 #import "IQFileOwnerType.h"
 #import "IQFileType.h"
 #import "IQMaxIdQuery.h"
+#import "IQRating.h"
+#import "IQRatingState.h"
 #import "IQRelationMap.h"
 #import "IQRelations.h"
 #import "IQResponse.h"

@@ -37,6 +37,7 @@
 @property(nonatomic, copy, nullable) IQChatPayloadType Payload;
 @property(nonatomic, copy, nullable) NSString *Text;
 @property(nonatomic, copy, nullable) NSString *FileId;
+@property(nonatomic, copy, nullable) NSNumber *RatingId;
 @property(nonatomic, copy, nullable) NSNumber *NoticeId;
 
 // Flags

@@ -8,4 +8,5 @@
 IQChatPayloadType const IQChatPayloadInvalid = @"";
 IQChatPayloadType const IQChatPayloadText = @"text";
 IQChatPayloadType const IQChatPayloadFile = @"file";
+IQChatPayloadType const IQChatPayloadRating = @"rating";
 IQChatPayloadType const IQChatPayloadNotice = @"notice";

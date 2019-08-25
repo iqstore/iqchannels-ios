@@ -11,6 +11,7 @@
 #import "IQChat.h"
 #import "IQChatMessage.h"
 #import "IQFile.h"
+#import "IQRating.h"
 
 
 @implementation IQRelations
@@ -28,6 +29,7 @@
     rels.ChatMessages = [IQChatMessage fromJSONArray:[IQJSON arrayFromObject:object key:@"ChatMessages"]];
     rels.Clients = [IQClient fromJSONArray:[IQJSON arrayFromObject:object key:@"Clients"]];
     rels.Files = [IQFile fromJSONArray:[IQJSON arrayFromObject:object key:@"Files"]];
+    rels.Ratings = [IQRating fromJSONArray:[IQJSON arrayFromObject:object key:@"Rating"]];
     rels.Users = [IQUser fromJSONArray:[IQJSON arrayFromObject:object key:@"Users"]];
     return rels;
 }

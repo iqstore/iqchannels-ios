@@ -44,6 +44,7 @@
     message.Payload = [IQJSON stringFromObject:object key:@"Payload"];
     message.Text = [IQJSON stringFromObject:object key:@"Text"];
     message.FileId = [IQJSON stringFromObject:object key:@"FileId"];
+    message.RatingId = [IQJSON stringFromObject:object key:@"RatingId"];
     message.NoticeId = [IQJSON numberFromObject:object key:@"NoticeId"];
 
     message.Received = [IQJSON boolFromObject:object key:@"Received"];

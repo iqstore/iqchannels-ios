@@ -14,9 +14,16 @@ PODS:
 DEPENDENCIES:
   - IQChannels (from `../`)
 
+SPEC REPOS:
+  https://github.com/cocoapods/specs.git:
+    - JSQMessagesViewController
+    - JSQSystemSoundPlayer
+    - SDWebImage
+    - TRVSEventSource
+
 EXTERNAL SOURCES:
   IQChannels:
-    :path: ../
+    :path: "../"
 
 SPEC CHECKSUMS:
   IQChannels: f5afc342eeda1513feb84f01436ee197a1449419
@@ -27,4 +34,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 35dee5a59fb44d04e505d79f5478ddcec4334e29
 
-COCOAPODS: 1.1.1
+COCOAPODS: 1.7.5

@@ -86,6 +86,7 @@
     message.Client = map.Clients[message.ClientId];
     message.User = map.Users[message.UserId];
     message.File = map.Files[message.FileId];
+    message.Rating = map.Ratings[message.RatingId];
 
     message.CreatedDate = [[NSDate alloc] initWithTimeIntervalSince1970:((NSTimeInterval) message.CreatedAt) / 1000];
     message.CreatedComponents = [_calendar

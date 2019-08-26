@@ -17,6 +17,7 @@
 @class IQChatMessageForm;
 @class IQChatEvent;
 @class IQFile;
+@class IQRating;
 
 
 @interface IQChatMessage : NSObject <IQJSONDecodable, JSQMessageData>
@@ -56,6 +57,7 @@
 @property(nonatomic, nullable) IQClient *Client;
 @property(nonatomic, nullable) IQUser *User;
 @property(nonatomic, nullable) IQFile *File;
+@property(nonatomic, nullable) IQRating *Rating;
 
 @property(nonatomic, nullable) NSDate *CreatedDate;
 @property(nonatomic, nullable) NSDateComponents *CreatedComponents;

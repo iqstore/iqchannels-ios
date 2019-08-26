@@ -10,7 +10,9 @@
 
 
 NSString *const userDefaultsLoginServerKey = @"iqchannels-example.login.server";
-NSString *const userDefaultsLoginServerValue = @"http://88.99.143.201";
+NSString *const userDefaultsLoginServerValue = @"https://app.iqstore.ru";
+//NSString *const userDefaultsLoginServerValue = @"http://192.168.10.32:3001";
+// NSString *const userDefaultsLoginServerValue = @"http://88.99.143.201";
 // NSString *const userDefaultsLoginServerValue = @"http://192.168.1.139:3001";
 // NSString *const userDefaultsLoginServerValue = @"https://demo.iqstore.ru:3443";
 

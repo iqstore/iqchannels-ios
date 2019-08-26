@@ -11,6 +11,7 @@
 #import "IQChatEvent.h"
 #import "IQChannel.h"
 #import "IQFile.h"
+#import "IQRating.h"
 
 
 @implementation IQRelationMap
@@ -24,6 +25,7 @@
     _ChatMessages = [[NSMutableDictionary alloc] init];
     _Clients = [[NSMutableDictionary alloc] init];
     _Files = [[NSMutableDictionary alloc] init];
+    _Ratings = [[NSMutableDictionary alloc] init];
     _Users = [[NSMutableDictionary alloc] init];
     return self;
 }
@@ -67,6 +69,11 @@
     if (relations.Files != nil) {
         for (IQFile *file in relations.Files) {
             _Files[file.Id] = file;
+        }
+    }
+    if (relations.Ratings != nil) {
+        for (IQRating *rating in relations.Ratings) {
+            _Ratings[@(rating.Id)] = rating;
         }
     }
     if (relations.Users != nil) {

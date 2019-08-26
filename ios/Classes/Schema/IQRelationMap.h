@@ -12,6 +12,7 @@
 @class IQChatEvent;
 @class IQChannel;
 @class IQFile;
+@class IQRating;
 
 
 @interface IQRelationMap : NSObject
@@ -20,6 +21,7 @@
 @property(nonatomic, nonnull) NSMutableDictionary<NSNumber *, IQChatMessage *> *ChatMessages;
 @property(nonatomic, nonnull) NSMutableDictionary<NSNumber *, IQClient *> *Clients;
 @property(nonatomic, nonnull) NSMutableDictionary<NSString *, IQFile *> *Files;
+@property(nonatomic, nonnull) NSMutableDictionary<NSNumber *, IQRating *> *Ratings;
 @property(nonatomic, nonnull) NSMutableDictionary<NSNumber *, IQUser *> *Users;
 
 - (instancetype _Nonnull)init;

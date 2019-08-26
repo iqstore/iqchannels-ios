@@ -39,4 +39,5 @@
 + (void)deleteFailedUpload:(int64_t)localId;
 + (void)retryUpload:(int64_t)localId;
 + (void)markAsRead:(int64_t)messageId;
++ (void)rate:(int64_t)ratingId value:(int32_t)value;
 @end

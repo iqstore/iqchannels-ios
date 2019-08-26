@@ -7,6 +7,7 @@
 
 #import "IQRatingView.h"
 #import "IQRating.h"
+#import "IQChannels.h"
 #import <JSQMessagesViewController/UIColor+JSQMessages.h>
 
 @interface IQRatingView ()
@@ -36,6 +37,27 @@
 }
 
 - (IBAction)touchRateDown:(id)sender {
+    if (![_rating.State isEqualToString:IQRatingStatePending]) {
+        return;
+    }
+    
+    [self updateRatingValue:sender];
+    [self updateImages];
+}
+
+- (IBAction)touchRateUpInside:(id)sender {
+    if (![_rating.State isEqualToString:IQRatingStatePending]) {
+        return;
+    }
+    
+    [self updateRatingValue:sender];
+    
+    int32_t value = _rating.Value.intValue;
+    _rating.State = IQRatingStateRated;
+    [IQChannels rate:_rating.Id value:value];
+}
+
+- (void) updateRatingValue:(id)sender {
     if (sender == self.rateOne) {
         _rating.Value = @1;
     } else if (sender == self.rateTwo) {
@@ -47,12 +69,6 @@
     } else if (sender == self.rateFive) {
         _rating.Value = @5;
     }
-    
-    [self updateImages];
-}
-
-- (IBAction)touchRateUpInside:(id)sender {
-    // TODO: Send rating.
 }
 
 - (void) updateImages {

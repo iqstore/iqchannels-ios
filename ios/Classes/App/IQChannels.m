@@ -1596,6 +1596,13 @@ const NSTimeInterval TYPING_DEBOUNCE_SEC = 1.5;
     [self sendMessage:message];
 }
 
+#pragma mark Ratings
+
+- (void)rate:(int64_t)ratingId value:(int32_t)value {
+    [_client ratingsRate:ratingId value:value callback:^(NSError *error) {}];
+    [_log info:@"Rated %d as %d", (int)ratingId, (int)value];
+}
+
 #pragma mark Static methods
 
 + (IQChannels *)instance {
@@ -1665,6 +1672,10 @@ const NSTimeInterval TYPING_DEBOUNCE_SEC = 1.5;
 
 + (void)markAsRead:(int64_t)messageId {
     [[self instance] markAsRead:messageId];
+}
+
++ (void)rate:(int64_t)ratingId value:(int32_t)value {
+    [[self instance] rate:ratingId value:value];
 }
 
 @end

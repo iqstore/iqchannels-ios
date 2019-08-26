@@ -195,8 +195,26 @@
         }
 
         IQFile *file0 = [IQFile fromJSONObject:result.Value];
-        [_relations file:file0 withMap:result.Relations];
+        [self._relations file:file0 withMap:result.Relations];
         callback(file0, nil);
+    }];
+}
+
+- (IQHttpRequest *)ratingsRate:(int64_t)ratingId value:(int32_t)value callback:(IQHttpVoidCallback)callback {
+    NSString *path = @"/ratings/rate";
+    NSDictionary *params = @{@"RatingId": @(ratingId), @"Rating": @{@"Value": @(value)}};
+    
+    return [self post:path json:params callback:^(IQResult *result, NSError *error) {
+        callback(error);
+    }];
+}
+
+- (IQHttpRequest *)ratingsIgnore:(int64_t)ratingId callback:(IQHttpVoidCallback)callback {
+    NSString *path = @"/ratings/ignore";
+    NSDictionary *params = @{@"RatingId": @(ratingId)};
+    
+    return [self post:path json:params callback:^(IQResult *result, NSError *error) {
+        callback(error);
     }];
 }
 

@@ -60,6 +60,11 @@ typedef void (^IQHttpFileCallback)(IQFile *, NSError *);
 
 - (IQHttpRequest *)filesUploadImage:(NSString *)filename data:(NSData *)data callback:(IQHttpFileCallback)callback;
 
+// Ratings
+
+- (IQHttpRequest *)ratingsRate:(int64_t)ratingId value:(int32_t)value callback:(IQHttpVoidCallback)callback;
+- (IQHttpRequest *)ratingsIgnore:(int64_t)ratingId callback:(IQHttpVoidCallback)callback;
+
 // Push
 
 - (IQHttpRequest *)pushChannel:(NSString *)channel apnsToken:(NSString *)token callback:(IQHttpVoidCallback)callback;

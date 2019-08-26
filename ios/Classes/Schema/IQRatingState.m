@@ -7,7 +7,7 @@
 
 #import "IQRatingState.h"
 
-IQRatingState const RatingStateInvalid = @"";
-IQRatingState const RatingStatePending = @"pending";
-IQRatingState const RatingStateIgnored = @"ignored";
-IQRatingState const RatingStateRated = @"rated";
+IQRatingState const IQRatingStateInvalid = @"";
+IQRatingState const IQRatingStatePending = @"pending";
+IQRatingState const IQRatingStateIgnored = @"ignored";
+IQRatingState const IQRatingStateRated = @"rated";

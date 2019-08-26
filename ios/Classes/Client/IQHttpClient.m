@@ -195,7 +195,7 @@
         }
 
         IQFile *file0 = [IQFile fromJSONObject:result.Value];
-        [self._relations file:file0 withMap:result.Relations];
+        [_relations file:file0 withMap:result.Relations];
         callback(file0, nil);
     }];
 }

@@ -13,6 +13,9 @@
 #import "IQChatMessageForm.h"
 #import "IQFile.h"
 #import "IQFileSize.h"
+#import "IQRating.h"
+#import "IQRatingMediaItem.h"
+#import "IQRatingState.h"
 #import "JSQPhotoMediaItem.h"
 
 
@@ -44,7 +47,7 @@
     message.Payload = [IQJSON stringFromObject:object key:@"Payload"];
     message.Text = [IQJSON stringFromObject:object key:@"Text"];
     message.FileId = [IQJSON stringFromObject:object key:@"FileId"];
-    message.RatingId = [IQJSON stringFromObject:object key:@"RatingId"];
+    message.RatingId = [IQJSON numberFromObject:object key:@"RatingId"];
     message.NoticeId = [IQJSON numberFromObject:object key:@"NoticeId"];
 
     message.Received = [IQJSON boolFromObject:object key:@"Received"];
@@ -154,23 +157,44 @@
     if (_UploadImage) {
         return YES;
     }
-    return _File && [_File.Type isEqualToString:IQFileTypeImage];
+    
+    if (self.isImageMessage) {
+        return YES;
+    }
+    if (self.isPendingRatingMessage) {
+        return YES;
+    }
+    return NO;
 }
 
 - (BOOL)isFileMessage {
     return _File && [_File.Type isEqualToString:IQFileTypeFile];
 }
 
+- (BOOL)isImageMessage {
+    return _File && [_File.Type isEqualToString:IQFileTypeImage];
+}
+
+- (BOOL)isPendingRatingMessage {
+    return _Rating != nil && [_Rating.State isEqual:IQRatingStatePending];
+}
+
 - (id <JSQMessageMediaData>)media {
     if (_media) {
         return _media;
     }
-    if (!self.isMediaMessage) {
-        return nil;
+    
+    if (self.isImageMessage) {
+        _media = [[JSQPhotoMediaItem alloc] initWithImage:nil];
+        return _media;
     }
-
-    _media = [[JSQPhotoMediaItem alloc] initWithImage:nil];
-    return _media;
+    
+    if (self.isPendingRatingMessage) {
+        _media = [[IQRatingMediaItem alloc] initWithRating:_Rating];
+        return _media;
+    }
+    
+    return nil;
 }
 
 - (NSString *)text {
@@ -179,6 +203,14 @@
     }
     if (self.isFileMessage) {
         return [NSString stringWithFormat:@"%@, %@", _File.Name, [IQFileSize unitWithSize:_File.Size]];
+    }
+    if (_Rating) {
+        if ([_Rating.State isEqual:IQRatingStateIgnored]) {
+            return [NSString stringWithFormat:@"Без оценки"];
+        }
+        if ([_Rating.State isEqual:IQRatingStateRated]) {
+            return [NSString stringWithFormat:@"Оценка оператора: %@ из 5", _Rating.Value];
+        }
     }
     return _Text;
 }

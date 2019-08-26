@@ -21,6 +21,9 @@ IQChannels iOS SDK
   s.platform = :ios, '8.0'
   s.ios.deployment_target = '8.0'
   s.resources = 'ios/Classes/UI/*.{xib}'
+  s.resource_bundles = {
+    'IQChannels' => ['ios/Assets/Images.xcassets']
+  }
   s.source_files = 'ios/Classes/**/*.{h,m}'
   s.requires_arc = true
 

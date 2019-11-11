@@ -261,9 +261,11 @@ const NSTimeInterval TYPING_DEBOUNCE_SEC = 1.5;
         [_log debug:@"Won't auth, network is unreachable"];
         return;
     }
+    
+    NSString *channel = _config.channel;
 
     _authAttempt++;
-    _authing = [_client clientsIntegrationAuth:_credentials callback:
+    _authing = [_client clientsIntegrationAuth:_credentials channel:channel callback:
             ^(IQClientAuth *auth, NSError *error) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     if (error != nil) {

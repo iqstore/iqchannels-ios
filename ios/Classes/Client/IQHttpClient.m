@@ -59,10 +59,11 @@
     }];
 }
 
-- (IQHttpRequest *)clientsIntegrationAuth:(NSString *)credentials callback:(IQHttpClientAutCallback)callback {
+- (IQHttpRequest *)clientsIntegrationAuth:(NSString *)credentials channel:(NSString *)channel callback:(IQHttpClientAutCallback)callback {
     NSString *path = @"/clients/integration_auth";
     IQClientIntegrationAuthRequest *req = [[IQClientIntegrationAuthRequest alloc] init];
     req.Credentials = credentials;
+    req.Channel = channel;
 
     return [self post:path jsonEncodable:req callback:^(IQResult *result, NSError *error) {
         if (error != nil) {

@@ -11,4 +11,5 @@
 
 @interface IQClientIntegrationAuthRequest : NSObject <IQJSONEncodable>
 @property(nonatomic, copy, nullable) NSString *Credentials;
+@property(nonatomic, copy, nullable) NSString *Channel;
 @end

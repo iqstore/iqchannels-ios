@@ -40,7 +40,7 @@ typedef void (^IQHttpFileCallback)(IQFile *, NSError *);
 // Clients
 
 - (IQHttpRequest *)clientsAuth:(NSString *)token callback:(IQHttpClientAutCallback)callback;
-- (IQHttpRequest *)clientsIntegrationAuth:(NSString *)credentials callback:(IQHttpClientAutCallback)callback;
+- (IQHttpRequest *)clientsIntegrationAuth:(NSString *)credentials channel:(NSString *)channel callback:(IQHttpClientAutCallback)callback;
 
 // Chats channel
 

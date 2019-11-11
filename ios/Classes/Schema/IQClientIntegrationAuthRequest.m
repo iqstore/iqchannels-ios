@@ -14,6 +14,9 @@
     if (self.Credentials != nil) {
         d[@"Credentials"] = self.Credentials;
     }
+    if (self.Channel != nil) {
+        d[@"Channel"] = self.Channel;
+    }
     return d;
 }
 @end

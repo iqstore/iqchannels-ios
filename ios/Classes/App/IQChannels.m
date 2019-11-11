@@ -29,6 +29,8 @@
 #import "JSQPhotoMediaItem.h"
 #import "IQFile.h"
 #import "SDWebImageManager.h"
+#import "IQSettings.h"
+#import "NSError+IQChannels.h"
 
 
 const NSTimeInterval TYPING_DEBOUNCE_SEC = 1.5;
@@ -43,15 +45,20 @@ const NSTimeInterval TYPING_DEBOUNCE_SEC = 1.5;
     IQNetwork *_network;
     IQRelationService *_relations;
     IQHttpClient *_client;
+    IQSettings *_settings;
     SDImageCache *_cache;
     SDWebImageManager *_imageManager;
     NSMutableDictionary<NSNumber *, id <SDWebImageOperation>> *_imageDownloading;
 
+    BOOL _anonymous;
     NSString *_Nullable _credentials;
     IQChannelsConfig *_Nullable _config;
 
     IQChannelsState _state;
     NSMutableSet<id <IQChannelsStateListener>> *_stateListeners;
+    
+    IQHttpRequest *_Nullable _signingUp;
+    NSInteger _signupAttempt;
 
     IQClientAuth *_auth;
     NSInteger _authAttempt;
@@ -106,6 +113,7 @@ const NSTimeInterval TYPING_DEBOUNCE_SEC = 1.5;
     _network = [[IQNetwork alloc] initWithListener:self];
     _relations = [[IQRelationService alloc] init];
     _client = [[IQHttpClient alloc] initWithLog:_log relations:_relations address:@""];
+    _settings = [[IQSettings alloc] init];
     _cache = [[SDImageCache alloc] initWithNamespace:@"ru.iqchannels"];
     _imageManager = [[SDWebImageManager alloc] initWithCache:_cache downloader:[SDWebImageDownloader sharedDownloader]];
 
@@ -119,6 +127,7 @@ const NSTimeInterval TYPING_DEBOUNCE_SEC = 1.5;
 }
 
 - (void)clear {
+    [self clearSignup];
     [self clearAuth];
     [self clearApnsSending];
     [self clearUnread];
@@ -212,20 +221,128 @@ const NSTimeInterval TYPING_DEBOUNCE_SEC = 1.5;
 - (void)login:(NSString *)credentials {
     [self logout];
 
+    _anonymous = NO;
     _credentials = credentials;
-    [_log info:@"Credentials are set"];
+    [_log info:@"Login as customer"];
 
+    [self auth];
+}
+
+- (void)loginAnonymous {
+    [self logout];
+    
+    _anonymous = YES;
+    [_log info:@"Login as anonymous"];
+    
     [self auth];
 }
 
 - (void)logout {
     [self clear];
+    
+    _anonymous = NO;
     _credentials = nil;
     [_cache clearMemory];
     [_cache clearDisk];
 
     [_log info:@"Logged out"];
     [self setState:IQChannelsStateLoggedOut];
+}
+
+#pragma mark Signup
+
+- (void)clearSignup {
+    [_signingUp cancel];
+
+    _signingUp = nil;
+}
+
+- (void)signupAnonymous {
+    if (_auth) {
+        [_log debug:@"Won't sign up, already authenticated"];
+        return;
+    }
+    if (_signingUp) {
+        [_log debug:@"Won't sign up, already signing up"];
+        return;
+    }
+    if (_authing) {
+        [_log debug:@"Won't sign up, already authenticating"];
+        return;
+    }
+
+    if (!_config) {
+        [_log debug:@"Won't sign up, config is absent"];
+        return;
+    }
+    if (!_network.isReachable) {
+        [_log debug:@"Won't sign up, network is unreachable"];
+        return;
+    }
+    
+    NSString *channel = _config.channel;
+
+    _signupAttempt++;
+    _signingUp = [_client clientsSignup:channel callback:^(IQClientAuth *auth, NSError *error) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (error != nil) {
+                [self signupError:error];
+                return;
+            }
+
+            [self signupResult:auth];
+        });
+    }];
+
+    [_log info:@"Signing up, attempt=%i", _signupAttempt];
+    [self setState:IQChannelsStateAuthenticating];
+}
+
+- (void)signupError:(NSError *)error {
+    if (!_signingUp) {
+        return;
+    }
+    _signingUp = nil;
+
+    if (!_network.isReachable) {
+        [_log info:@"Signup failed, network is unreachable, error=%@",
+                   error.localizedDescription];
+        return;
+    }
+
+    NSInteger timeout = [IQTimeout secondsWithAttempt:_signupAttempt];
+    dispatch_time_t time = [IQTimeout timeWithTimeoutSeconds:timeout];
+    dispatch_after(time, dispatch_get_main_queue(), ^{
+        [self signupAnonymous];
+    });
+
+    [_log info:@"Signup failed, will retry %i second(s), error=%@",
+               timeout, error.localizedDescription];
+}
+
+- (void)signupResult:(IQClientAuth *)auth {
+    if (!_signingUp) {
+        return;
+    }
+
+    if (auth == nil || auth.Client == nil || auth.Session == nil) {
+        [_log error:@"Signup failed, server returned an invalid auth"];
+        [self signupError:nil];
+        return;
+    }
+
+    _signupAttempt = 0;
+    _signingUp = nil;
+
+    _auth = auth;
+    _client.token = auth.Session.Token;
+    [_settings saveAnonymousToken:auth.Session.Token];
+    [_log info:@"Signed up, clientId=%lli, sessionId=%lli", auth.Client.Id, auth.Session.Id];
+    [self setState:IQChannelsStateAuthenticated];
+
+    [self sendApnsToken];
+    [self listenToUnread];
+    [self loadMessages];
 }
 
 #pragma mark Auth
@@ -253,31 +370,56 @@ const NSTimeInterval TYPING_DEBOUNCE_SEC = 1.5;
         [_log debug:@"Won't auth, config is absent"];
         return;
     }
-    if (!_credentials) {
-        [_log debug:@"Won't auth, credentials are absent"];
-        return;
-    }
     if (!_network.isReachable) {
         [_log debug:@"Won't auth, network is unreachable"];
         return;
     }
     
-    NSString *channel = _config.channel;
+    if (_anonymous) {
+        NSString *token = [_settings loadAnonymousToken];
+        if (!token) {
+            [_log debug:@"Won't auth, anonymous token is absent"];
+            [self signupAnonymous];
+            return;
+        }
+    
+        _authAttempt++;
+        _authing = [_client clientsAuth:token callback:^(IQClientAuth *auth, NSError *error) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (error != nil) {
+                    [self authError:error];
+                    return;
+                }
+                
+                [self authResult:auth];
+            });
+        }];
+        
+        [_log info:@"Authenticating as anonymous, attempt=%i", _authAttempt];
+        
+    } else {
+        if (!_credentials) {
+            [_log debug:@"Won't auth, credentials are absent"];
+            return;
+        }
+        
+        NSString *channel = _config.channel;
+        _authAttempt++;
+        _authing = [_client clientsIntegrationAuth:_credentials channel:channel callback:
+                ^(IQClientAuth *auth, NSError *error) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        if (error != nil) {
+                            [self authError:error];
+                            return;
+                        }
 
-    _authAttempt++;
-    _authing = [_client clientsIntegrationAuth:_credentials channel:channel callback:
-            ^(IQClientAuth *auth, NSError *error) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    if (error != nil) {
-                        [self authError:error];
-                        return;
-                    }
-
-                    [self authResult:auth];
-                });
-            }];
-
-    [_log info:@"Authenticating, attempt=%i", _authAttempt];
+                        [self authResult:auth];
+                    });
+                }];
+        
+        [_log info:@"Authenticating as customer, channel=%@, attempt=%i", channel, _authAttempt];
+    }
+    
     [self setState:IQChannelsStateAuthenticating];
 }
 
@@ -290,6 +432,12 @@ const NSTimeInterval TYPING_DEBOUNCE_SEC = 1.5;
     if (!_network.isReachable) {
         [_log info:@"Authentication failed, network is unreachable, error=%@",
                    error.localizedDescription];
+        return;
+    }
+    
+    if ([error iq_isAuthError]) {
+        [_log info:@"Authentication failed, invalid anonymous token"];
+        [self signupAnonymous];
         return;
     }
 
@@ -313,7 +461,6 @@ const NSTimeInterval TYPING_DEBOUNCE_SEC = 1.5;
         [self authError:nil];
         return;
     }
-
 
     _auth = auth;
     _authAttempt = 0;
@@ -1630,6 +1777,10 @@ const NSTimeInterval TYPING_DEBOUNCE_SEC = 1.5;
 
 + (void)login:(NSString *)credentials {
     [[self instance] login:credentials];
+}
+
++ (void)loginAnonymous {
+    [[self instance] loginAnonymous];
 }
 
 + (void)logout {

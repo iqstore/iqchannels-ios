@@ -41,6 +41,7 @@
 #import "IQClientAuth.h"
 #import "IQClientAuthRequest.h"
 #import "IQClientIntegrationAuthRequest.h"
+#import "IQClientInput.h"
 #import "IQClientSession.h"
 #import "IQError.h"
 #import "IQErrorCode.h"

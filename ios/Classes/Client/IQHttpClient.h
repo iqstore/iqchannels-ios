@@ -24,6 +24,7 @@
 
 typedef void (^IQHttpVoidCallback)(NSError *);
 typedef void (^IQHttpClientAutCallback)(IQClientAuth *, NSError *);
+typedef void (^IQHttpClientSignupCallback)(IQClientAuth *, NSError *);
 typedef void (^IQHttpChatCallback)(IQChat *, NSError *);
 typedef void (^IQHttpMessagesCallback)(NSArray<IQChatMessage *> *, NSError *);
 typedef void (^IQHttpEventsCallback)(NSArray<IQChatEvent *> *, NSError *);
@@ -39,6 +40,7 @@ typedef void (^IQHttpFileCallback)(IQFile *, NSError *);
 
 // Clients
 
+- (IQHttpRequest *)clientsSignup:(NSString *)channel callback:(IQHttpClientSignupCallback)callback;
 - (IQHttpRequest *)clientsAuth:(NSString *)token callback:(IQHttpClientAutCallback)callback;
 - (IQHttpRequest *)clientsIntegrationAuth:(NSString *)credentials channel:(NSString *)channel callback:(IQHttpClientAutCallback)callback;
 

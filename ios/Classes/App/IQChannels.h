@@ -25,6 +25,7 @@
 // Login/logout
 
 + (void)login:(NSString *_Nullable)credentials;
++ (void)loginAnonymous;
 + (void)logout;
 
 // Chat

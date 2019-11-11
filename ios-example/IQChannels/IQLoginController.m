@@ -81,4 +81,10 @@ NSString *const userDefaultsLoginServerValue = @"https://app.iqstore.ru";
     [IQChannels login:self.email.text];
     [_appDelegate switchToTabbar];
 }
+
+- (IBAction)loginAnonymous:(id)sender {
+    [IQChannels loginAnonymous];
+    [_appDelegate switchToTabbar];
+}
+
 @end

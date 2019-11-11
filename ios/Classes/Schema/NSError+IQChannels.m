@@ -59,6 +59,19 @@ NSInteger const IQErrorClientError = 3;
     return [self iq_appError] != nil;
 }
 
+- (BOOL)iq_isAuthError {
+    if (![self iq_isAppError]) {
+        return NO;
+    }
+    
+    IQError *error = self.iq_appError;
+    if (!error) {
+        return nil;
+    }
+    
+    return [error.Code isEqualToString:IQErrorCodeUnauthorized];
+}
+
 - (IQError *)iq_appError {
     return self.userInfo[IQErrorUserInfoKey];
 }

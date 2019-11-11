@@ -23,5 +23,6 @@ extern NSInteger const IQErrorClientError;
 + (NSError *_Nonnull)iq_withIQError:(IQError *_Nullable)error;
 
 - (BOOL)iq_isAppError;
+- (BOOL)iq_isAuthError;
 - (IQError *_Nullable)iq_appError;
 @end

@@ -22,6 +22,7 @@
 #import "IQRelationService.h"
 #import "IQFile.h"
 #import "IQHttpFile.h"
+#import "IQClientInput.h"
 
 
 @implementation IQHttpClient {
@@ -40,6 +41,23 @@
     _session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration ephemeralSessionConfiguration]];
     _relations = relations;
     return self;
+}
+
+- (IQHttpRequest *)clientsSignup:(NSString *)channel callback:(IQHttpClientSignupCallback)callback {
+    NSString *path = @"/clients/signup";
+    IQClientInput *input = [[IQClientInput alloc] init];
+    input.Channel = channel;
+    
+    return [self post: path jsonEncodable:input callback:^(IQResult *result, NSError *error) {
+        if (error != nil) {
+            callback(nil, error);
+            return;
+        }
+
+        IQClientAuth *auth = [IQClientAuth fromJSONObject:result.Value];
+        [_relations clientAuth:auth withMap:result.Relations];
+        callback(auth, nil);
+    }];
 }
 
 - (IQHttpRequest *)clientsAuth:(NSString *)token callback:(IQHttpClientAutCallback)callback {

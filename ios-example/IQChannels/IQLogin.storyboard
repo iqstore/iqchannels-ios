@@ -1,13 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11762" systemVersion="16C67" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="yB5-RG-HEV">
-    <device id="retina4_7" orientation="portrait">
-        <adaptation id="fullscreen"/>
-    </device>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="yB5-RG-HEV">
+    <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
-        <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11757"/>
-        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
-        <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15509"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -50,7 +45,7 @@
                                     <action selector="login:" destination="yB5-RG-HEV" eventType="touchUpInside" id="pLL-XZ-v9h"/>
                                 </connections>
                             </button>
-                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="1" placeholder="Почта" textAlignment="natural" minimumFontSize="12" translatesAutoresizingMaskIntoConstraints="NO" id="bUq-2A-nRz">
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="101" placeholder="Почта" textAlignment="natural" minimumFontSize="12" translatesAutoresizingMaskIntoConstraints="NO" id="bUq-2A-nRz">
                                 <rect key="frame" x="65.5" y="258.5" width="244" height="40"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="40" id="eJC-Ir-7BR"/>
@@ -92,7 +87,7 @@
                                 </variation>
                             </view>
                             <button opaque="NO" alpha="0.5" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kcX-Lw-7n8">
-                                <rect key="frame" x="16" y="20" width="343" height="30"/>
+                                <rect key="frame" x="16" y="0.0" width="343" height="30"/>
                                 <state key="normal" title="Сервер">
                                     <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
@@ -100,10 +95,36 @@
                                     <action selector="serverButtonTouch:" destination="yB5-RG-HEV" eventType="touchUpInside" id="Nr3-zr-Xb6"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="x61-TJ-HVS">
+                                <rect key="frame" x="65" y="367" width="244" height="40"/>
+                                <color key="backgroundColor" red="0.56862745100000001" green="0.20392156859999999" blue="0.37647058820000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="40" id="DS6-Lv-SVu"/>
+                                    <constraint firstAttribute="height" constant="40" id="fLl-Z0-XHC"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                <state key="normal" title="Войти анонимом">
+                                    <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                </state>
+                                <variation key="default">
+                                    <mask key="constraints">
+                                        <exclude reference="fLl-Z0-XHC"/>
+                                    </mask>
+                                </variation>
+                                <variation key="heightClass=regular">
+                                    <mask key="constraints">
+                                        <include reference="fLl-Z0-XHC"/>
+                                    </mask>
+                                </variation>
+                                <connections>
+                                    <action selector="loginAnonymous:" destination="yB5-RG-HEV" eventType="touchUpInside" id="iKD-Zt-TcX"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="FYR-c6-0rX" firstAttribute="bottom" secondItem="caO-Hy-eLX" secondAttribute="top" id="739-G7-Isf"/>
+                            <constraint firstItem="x61-TJ-HVS" firstAttribute="top" secondItem="LN4-xZ-CLC" secondAttribute="bottom" constant="13.5" id="9dW-t6-eOK"/>
                             <constraint firstItem="LN4-xZ-CLC" firstAttribute="centerY" secondItem="Gcy-r1-HRH" secondAttribute="centerY" id="FZg-rd-wq3"/>
                             <constraint firstItem="kcX-Lw-7n8" firstAttribute="leading" secondItem="Gcy-r1-HRH" secondAttribute="leadingMargin" id="JNd-Ce-dy0"/>
                             <constraint firstItem="LN4-xZ-CLC" firstAttribute="centerX" secondItem="Gcy-r1-HRH" secondAttribute="centerX" id="Jqt-1m-cSC"/>
@@ -118,7 +139,9 @@
                             <constraint firstItem="FYR-c6-0rX" firstAttribute="trailing" secondItem="Gcy-r1-HRH" secondAttribute="trailingMargin" constant="20" id="oR3-FD-ZKn"/>
                             <constraint firstItem="kcX-Lw-7n8" firstAttribute="trailing" secondItem="Gcy-r1-HRH" secondAttribute="trailingMargin" id="qBs-SI-u6A"/>
                             <constraint firstItem="qd0-DM-VUx" firstAttribute="top" secondItem="bUq-2A-nRz" secondAttribute="bottom" constant="1" id="qVi-bK-a0k"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="x61-TJ-HVS" secondAttribute="trailing" constant="50" id="qrZ-pQ-BCP"/>
                             <constraint firstItem="bUq-2A-nRz" firstAttribute="centerX" secondItem="LN4-xZ-CLC" secondAttribute="centerX" id="v5N-MM-7Hv"/>
+                            <constraint firstItem="x61-TJ-HVS" firstAttribute="leading" secondItem="Gcy-r1-HRH" secondAttribute="leadingMargin" constant="49" id="vQU-aA-nVk"/>
                         </constraints>
                         <variation key="default">
                             <mask key="subviews">
@@ -126,15 +149,15 @@
                                 <exclude reference="qd0-DM-VUx"/>
                             </mask>
                             <mask key="constraints">
-                                <exclude reference="FZg-rd-wq3"/>
-                                <exclude reference="Jqt-1m-cSC"/>
-                                <exclude reference="fg7-Tf-q2s"/>
-                                <exclude reference="o4Y-PJ-BsD"/>
                                 <exclude reference="Ym4-hf-RT0"/>
                                 <exclude reference="v5N-MM-7Hv"/>
                                 <exclude reference="WZY-db-9mH"/>
                                 <exclude reference="d40-Eh-4zW"/>
                                 <exclude reference="qVi-bK-a0k"/>
+                                <exclude reference="FZg-rd-wq3"/>
+                                <exclude reference="Jqt-1m-cSC"/>
+                                <exclude reference="fg7-Tf-q2s"/>
+                                <exclude reference="o4Y-PJ-BsD"/>
                             </mask>
                         </variation>
                         <variation key="heightClass=regular">
@@ -143,15 +166,15 @@
                                 <include reference="qd0-DM-VUx"/>
                             </mask>
                             <mask key="constraints">
-                                <include reference="FZg-rd-wq3"/>
-                                <include reference="Jqt-1m-cSC"/>
-                                <include reference="fg7-Tf-q2s"/>
-                                <include reference="o4Y-PJ-BsD"/>
                                 <include reference="Ym4-hf-RT0"/>
                                 <include reference="v5N-MM-7Hv"/>
                                 <include reference="WZY-db-9mH"/>
                                 <include reference="d40-Eh-4zW"/>
                                 <include reference="qVi-bK-a0k"/>
+                                <include reference="FZg-rd-wq3"/>
+                                <include reference="Jqt-1m-cSC"/>
+                                <include reference="fg7-Tf-q2s"/>
+                                <include reference="o4Y-PJ-BsD"/>
                             </mask>
                         </variation>
                     </view>
@@ -177,8 +200,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="http://ip:port" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="e1a-jC-a5X">
-                                <rect key="frame" x="16" y="28" width="343" height="30"/>
-                                <nil key="textColor"/>
+                                <rect key="frame" x="16" y="8" width="343" height="34"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
                             </textField>

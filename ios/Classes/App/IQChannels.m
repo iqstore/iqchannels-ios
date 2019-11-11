@@ -1354,7 +1354,7 @@ const NSTimeInterval TYPING_DEBOUNCE_SEC = 1.5;
     }
 
     int64_t localId = [self nextLocalId];
-    fileName = fileName ? fileName : @"image.jpeg";
+    fileName = (fileName && fileName.length > 0) ? fileName : @"image.jpeg";
 
     IQChatMessage *message = [[IQChatMessage alloc]
             initWithClient:_auth.Client

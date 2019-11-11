@@ -965,7 +965,6 @@ heightForCellBottomLabelAtIndexPath:(NSIndexPath *)indexPath {
 }
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary<NSString *, id> *)info {
-    NSURL *url = info[UIImagePickerControllerReferenceURL];
     UIImage *image = info[UIImagePickerControllerEditedImage];
     if (!image) {
         image = info[UIImagePickerControllerOriginalImage];
@@ -975,14 +974,12 @@ heightForCellBottomLabelAtIndexPath:(NSIndexPath *)indexPath {
     }
 
     // Get an asset filename.
+    PHAsset *asset = info[UIImagePickerControllerPHAsset];
     NSString *filename = @"";
-    if (url) {
-        PHFetchResult *result = [PHAsset fetchAssetsWithALAssetURLs:@[url] options:nil];
-        if (result.count > 0) {
-            filename = [[result firstObject] filename];
-        }
+    if (asset) {
+        filename = [asset valueForKey:@"originalFilename"];
     }
-
+    
     // Dismiss the camera.
     if (picker.sourceType == UIImagePickerControllerSourceTypeCamera) {
         [self dismissViewControllerAnimated:YES completion:^{

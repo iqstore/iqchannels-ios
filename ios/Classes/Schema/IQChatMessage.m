@@ -184,17 +184,17 @@
         return _media;
     }
     
-    if (self.isImageMessage) {
-        _media = [[JSQPhotoMediaItem alloc] initWithImage:nil];
-        return _media;
-    }
-    
     if (self.isPendingRatingMessage) {
         _media = [[IQRatingMediaItem alloc] initWithRating:_Rating];
         return _media;
     }
     
-    return nil;
+    if (!self.isMediaMessage) {
+        return nil;
+    }
+    
+    _media = [[JSQPhotoMediaItem alloc] initWithImage:nil];
+    return _media;
 }
 
 - (NSString *)text {

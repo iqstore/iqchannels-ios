@@ -17,6 +17,7 @@
 #import "SDK.h"
 #import "IQSubscription.h"
 #import "IQImagePreviewController.h"
+#import "IQImagePreviewViewController.h"
 #import "SDWebImageManager.h"
 
 
@@ -989,19 +990,18 @@ heightForCellBottomLabelAtIndexPath:(NSIndexPath *)indexPath {
     }
 
     // Present a gallery photo preview.
-    void (^cancelBlock)(IQImagePreviewController *) = ^(IQImagePreviewController *controller) {
+    void (^cancelBlock)(IQImagePreviewViewController *) = ^(IQImagePreviewViewController *controller) {
         CATransition *transition = [self transitionFromLeft];
         [controller.view.window.layer addAnimation:transition forKey:kCATransition];
         [controller dismissViewControllerAnimated:NO completion:nil];
     };
-    void (^doneBLock)(IQImagePreviewController *) = ^(IQImagePreviewController *controller) {
+    void (^doneBlock)(IQImagePreviewViewController *) = ^(IQImagePreviewViewController *controller) {
         [self dismissViewControllerAnimated:YES completion:^{
             [self sendImage:image filename:filename];
         }];
     };
-
-    IQImagePreviewController *preview = [[IQImagePreviewController alloc]
-            initWithImage:image cancel:cancelBlock done:doneBLock];
+    
+    IQImagePreviewViewController *preview = [IQImagePreviewViewController controllerWithImage:image cancel:cancelBlock done:doneBlock];
     CATransition *transition = [self transitionFromRight];
     [picker.view.window.layer addAnimation:transition forKey:kCATransition];
     [picker presentViewController:preview animated:NO completion:nil];

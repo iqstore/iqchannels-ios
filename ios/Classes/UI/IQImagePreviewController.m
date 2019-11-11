@@ -20,6 +20,7 @@
     void (^_cancel)(IQImagePreviewController *);
     void (^_done)(IQImagePreviewController *);
 }
+
 - (instancetype)initWithImage:(UIImage *_Nonnull)image
                        cancel:(void (^ _Nonnull)(IQImagePreviewController *))cancel
                          done:(void (^ _Nonnull)(IQImagePreviewController *))done {
@@ -37,8 +38,8 @@
     [super viewDidLoad];
 
     self.view.backgroundColor = [UIColor blackColor];
-    [self setupImageView];
     [self setupToolbar];
+    [self setupImageView];
 }
 
 - (BOOL)prefersStatusBarHidden {
@@ -53,7 +54,14 @@
 }
 
 - (void)setupToolbar {
-    CGRect frame = CGRectMake(0, self.view.frame.size.height - 44, self.view.frame.size.width, 44);
+    UIEdgeInsets insets = self.view.safeAreaInsets;
+    CGFloat height = self.view.frame.size.height - 44;
+    CGFloat width = self.view.frame.size.width;
+    
+    height -= insets.top;
+    height -= insets.bottom;
+    
+    CGRect frame = CGRectMake(0, height, width, 44);
     _toolbar = [[UIToolbar alloc] initWithFrame:frame];
     _toolbar.barStyle = UIBarStyleBlack;
     _toolbar.tintColor = [UIColor whiteColor];

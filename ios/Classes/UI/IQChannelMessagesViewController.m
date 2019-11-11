@@ -611,6 +611,12 @@
     if (message.isMediaMessage) {
         [IQChannels loadMessageMedia:message.Id];
     }
+    
+    if (message.File) {
+        cell.textView.selectable = NO;
+    } else {
+        cell.textView.selectable = YES;
+    }
 
     return cell;
 }

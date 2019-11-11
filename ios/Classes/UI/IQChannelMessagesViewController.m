@@ -22,7 +22,7 @@
 
 @interface IQChannelMessagesViewController () <IQChannelsStateListener, IQChannelsMessagesListener,
         IQChannelsMoreMessagesListener, UIActionSheetDelegate, UINavigationControllerDelegate,
-        UIImagePickerControllerDelegate>
+        UIImagePickerControllerDelegate, UIGestureRecognizerDelegate>
 @property(nonatomic) UIRefreshControl *refreshControl;
 @property(nonatomic) IQActivityIndicator *loginIndicator;
 @property(nonatomic) IQActivityIndicator *messagesIndicator;
@@ -59,6 +59,7 @@
 
     [self setupNavbar];
     [self setupTabbarSupport];
+    [self setupCollectionView];
     [self setupLoginIndicator];
     [self setupMessagesIndicator];
     [self setupBubbles];
@@ -83,6 +84,13 @@
     }
 
     self.edgesForExtendedLayout = UIRectEdgeTop;
+}
+
+- (void)setupCollectionView {
+    // Hide keyboard on a tap.
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissKeyboard:)];
+    tap.delegate = self;
+    [self.collectionView addGestureRecognizer:tap];
 }
 
 - (void)setupLoginIndicator {
@@ -181,6 +189,16 @@
 - (void)viewDidDisappear:(BOOL)animated {
     [super viewDidDisappear:animated];
     _visible = NO;
+}
+
+#pragma mark Keyboard
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
+    return YES;
+}
+
+- (void)dismissKeyboard:(id)sender {
+    [self.view endEditing:YES];
 }
 
 #pragma mark RefreshControl

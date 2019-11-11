@@ -217,6 +217,9 @@
     if ([address hasPrefix:@"/"]) {
         address = [address substringFromIndex:1];
     }
+    if ([address hasSuffix:@"/"]) {
+        address = [address substringToIndex: [address length] - 1];
+    }
     return [NSURL URLWithString:[NSString stringWithFormat:@"%@/public/api/v1/files/get/%@", address, fileId]];
 }
 
@@ -224,6 +227,9 @@
     NSString *address = _address ? _address : @"";
     if ([address hasPrefix:@"/"]) {
         address = [address substringFromIndex:1];
+    }
+    if ([address hasSuffix:@"/"]) {
+        address = [address substringToIndex: [address length] - 1];
     }
     return [NSURL URLWithString:
             [NSString stringWithFormat:@"%@/public/api/v1/files/image/%@?size=%@", address, fileId, size]];

@@ -17,6 +17,10 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.navigationItem.title = @"Сообщения";
+    
+    if (self.displayCloseButton) {
+        self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(close)];
+    }
 }
 
 - (void)close {

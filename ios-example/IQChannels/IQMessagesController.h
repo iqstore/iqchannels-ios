@@ -10,4 +10,5 @@
 #import <IQChannels/IQChannelMessagesViewController.h>
 
 @interface IQMessagesController : IQChannelMessagesViewController
+@property(nonatomic) BOOL displayCloseButton;
 @end

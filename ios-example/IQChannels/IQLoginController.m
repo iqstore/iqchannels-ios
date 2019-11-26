@@ -7,6 +7,7 @@
 #import "IQLoginController.h"
 #import "IQAppDelegate.h"
 #import "IQLoginServerController.h"
+#import "IQMessagesController.h"
 
 
 NSString *const userDefaultsLoginServerKey = @"iqchannels-example.login.server";
@@ -84,7 +85,12 @@ NSString *const userDefaultsLoginServerValue = @"https://app.iqstore.ru";
 
 - (IBAction)loginAnonymous:(id)sender {
     [IQChannels loginAnonymous];
-    [_appDelegate switchToTabbar];
+    
+    IQMessagesController *msg = [[IQMessagesController alloc] init];
+    msg.displayCloseButton = YES;
+    
+    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:msg];
+    [self presentViewController:nav animated:YES completion:nil];
 }
 
 @end

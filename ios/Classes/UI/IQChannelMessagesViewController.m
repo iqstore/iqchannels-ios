@@ -53,6 +53,8 @@
     int64_t _fileActionSheetMessageId;
     UIActionSheet *_uploadActionSheet;
     int64_t _uploadActionSheetLocalId;
+    
+    JSQMessagesAvatarImageFactory *_avatarImageFactory;
 }
 
 - (void)viewDidLoad {
@@ -72,11 +74,12 @@
     if (!self.navigationItem) {
         return;
     }
-    if (self.navigationItem.title && self.navigationItem.title.length > 0) {
-        return;
+    
+    if (self.navigationItem.title && self.navigationItem.title.length <= 0) {
+        self.navigationItem.title = @"Сообщения";
     };
-
-    self.navigationItem.title = @"Сообщения";
+    
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(closeViewController)];
 };
 
 - (void)setupTabbarSupport {
@@ -84,7 +87,7 @@
         return;
     }
 
-    self.edgesForExtendedLayout = UIRectEdgeTop;
+    self.edgesForExtendedLayout = UIRectEdgeNone;
 }
 
 - (void)setupCollectionView {
@@ -145,6 +148,8 @@
 }
 
 - (void)setupAvatars {
+    _avatarImageFactory = [[JSQMessagesAvatarImageFactory alloc] initWithDiameter:(NSUInteger) kJSQMessagesCollectionViewAvatarSizeDefault];
+    
     // self.collectionView.collectionViewLayout.incomingAvatarViewSize = CGSizeZero;
     self.collectionView.collectionViewLayout.outgoingAvatarViewSize = CGSizeZero;
 }
@@ -167,6 +172,10 @@
     return _client ? _client.senderDisplayName : @"";
 }
 
+- (void)closeViewController {
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
 #pragma mark viewWillAppear/Disappear
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -185,7 +194,6 @@
         [_readMessages removeAllObjects];
     }
 }
-
 
 - (void)viewDidDisappear:(BOOL)animated {
     [super viewDidDisappear:animated];
@@ -570,9 +578,7 @@
         return nil;
     }
     if (user.AvatarImage) {
-        return [JSQMessagesAvatarImageFactory
-                avatarImageWithImage:user.AvatarImage diameter:(NSUInteger)
-                        kJSQMessagesCollectionViewAvatarSizeDefault];
+        return [_avatarImageFactory avatarImageWithImage: user.AvatarImage];
     }
 
     if (user.AvatarURL) {
@@ -601,12 +607,11 @@
     }
 
     NSString *initials = [message.User.Name substringWithRange:NSMakeRange(0, 1)];
-    return [JSQMessagesAvatarImageFactory
+    return [_avatarImageFactory
             avatarImageWithUserInitials:initials
-                        backgroundColor:[UIColor paletteColorFromString:user.Name]
-                              textColor:[UIColor whiteColor]
-                                   font:[UIFont systemFontOfSize:14.0f]
-                               diameter:(NSUInteger) kJSQMessagesCollectionViewAvatarSizeDefault];
+            backgroundColor:[UIColor paletteColorFromString:user.Name]
+                  textColor:[UIColor whiteColor]
+                       font:[UIFont systemFontOfSize:14.0f]];
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView

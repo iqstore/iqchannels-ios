@@ -27,7 +27,7 @@ IQChannels iOS SDK
   s.source_files = 'ios/Classes/**/*.{h,m}'
   s.requires_arc = true
 
-  s.dependency 'JSQMessagesViewController', '~> 7.3.5'
+  s.dependency 'JSQMessagesViewController', '~> 7.3.6'
   s.dependency 'SDWebImage', '~>3.8'
   s.dependency 'TRVSEventSource', '0.0.8'
 end

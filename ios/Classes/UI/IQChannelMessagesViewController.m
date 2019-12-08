@@ -973,12 +973,29 @@ heightForCellBottomLabelAtIndexPath:(NSIndexPath *)indexPath {
     if (!image) {
         return;
     }
-
+    
     // Get an asset filename.
-    PHAsset *asset = info[UIImagePickerControllerPHAsset];
     NSString *filename = @"";
-    if (asset) {
-        filename = [asset valueForKey:@"originalFilename"];
+    if (@available(iOS 11.0, *)) {
+        PHAsset *asset = info[UIImagePickerControllerPHAsset];
+        if (asset) {
+            NSArray<PHAssetResource *> *resources = [PHAssetResource assetResourcesForAsset:asset];
+            if (resources.count > 0) {
+                PHAssetResource *resource = [resources firstObject];
+                if (resource) {
+                    filename = resource.originalFilename;
+                }
+            }
+            // filename = [asset valueForKey:@"originalFilename"];
+        }
+    } else {
+        NSURL *url = info[UIImagePickerControllerReferenceURL];
+        if (url) {
+            PHFetchResult *result = [PHAsset fetchAssetsWithALAssetURLs:@[url] options:nil];
+            if (result.count > 0) {
+                filename = [[result firstObject] filename];
+            }
+        }
     }
     
     // Dismiss the camera.

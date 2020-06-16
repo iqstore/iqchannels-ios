@@ -450,12 +450,16 @@
     if (!file) {
         return;
     }
-    NSURL *url = file.URL;
-    if (!url) {
-        return;
-    }
-
-    [[UIApplication sharedApplication] openURL:url options:nil completionHandler:nil];
+    
+    [IQChannels fileURL:file.Id callback:^(NSURL * _Nullable url, NSError * _Nullable error) {
+        if (error) {
+            UIAlertView *alert = [UIAlertView iq_alertViewWithError:error];
+            [alert show];
+            return;
+        }
+        
+        [[UIApplication sharedApplication] openURL:url options:nil completionHandler:nil];
+    }];
 }
 
 #pragma mark More messages

@@ -8,11 +8,12 @@
 @class IQSubscription;
 @class IQChannelsConfig;
 @class IQChatMessageForm;
+@class IQHttpRequest;
 @protocol IQChannelsStateListener;
 @protocol IQChannelsMessagesListener;
 @protocol IQChannelsUnreadListener;
 @protocol IQChannelsMoreMessagesListener;
-
+typedef void (^IQFileURLCallback)(NSURL *_Nullable, NSError *_Nullable);
 
 @interface IQChannels : NSObject
 
@@ -41,4 +42,5 @@
 + (void)retryUpload:(int64_t)localId;
 + (void)markAsRead:(int64_t)messageId;
 + (void)rate:(int64_t)ratingId value:(int32_t)value;
++ (IQHttpRequest *_Nonnull)fileURL:(NSString *_Nonnull)fileId callback:(IQFileURLCallback _Nonnull)callback;
 @end

@@ -9,6 +9,7 @@
 #import "IQRelations.h"
 #import "IQChatMessage.h"
 #import "IQChatEvent.h"
+#import "IQClientInput.h"
 #import "IQClientIntegrationAuthRequest.h"
 #import "IQLog.h"
 #import "IQChatMessageForm.h"
@@ -20,7 +21,9 @@
 #import "IQHttpRequest.h"
 #import "IQRelationMap.h"
 #import "IQRelationService.h"
+#import "IQResult.h"
 #import "IQFile.h"
+#import "IQFileToken.h"
 #import "IQHttpFile.h"
 #import "IQClientInput.h"
 
@@ -217,6 +220,26 @@
         [_relations file:file0 withMap:result.Relations];
         callback(file0, nil);
     }];
+}
+
+- (IQHttpRequest *)filesToken:(NSString *)fileId callback:(IQHttpFileTokenCallback)callback {
+    NSString *path = @"/files/token";
+    NSDictionary *params = @{@"FileId": fileId};
+    
+    return [self post:path json:params callback:^(IQResult *result, NSError *error) {
+        if (error != nil) {
+            callback(nil, error);
+            return;
+        }
+
+        IQFileToken *token = [IQFileToken fromJSONObject:result.Value];
+        callback(token, nil);
+    }];
+}
+
+- (NSURL *)fileURL:(NSString *)fileId token:(NSString *)token {
+    NSString *path = [NSString stringWithFormat:@"/files/get/%@?token=%@", fileId, token];
+    return [self requestUrl:path];
 }
 
 - (IQHttpRequest *)ratingsRate:(int64_t)ratingId value:(int32_t)value callback:(IQHttpVoidCallback)callback {

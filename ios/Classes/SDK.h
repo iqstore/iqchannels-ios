@@ -47,6 +47,7 @@
 #import "IQErrorCode.h"
 #import "IQFile.h"
 #import "IQFileOwnerType.h"
+#import "IQFileToken.h"
 #import "IQFileType.h"
 #import "IQMaxIdQuery.h"
 #import "IQRating.h"

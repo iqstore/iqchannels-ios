@@ -23,6 +23,7 @@
 #import "IQChannelsMoreMessagesListener.h"
 #import "IQChatEventQuery.h"
 #import "IQChatEvent.h"
+#import "IQFileToken.h"
 #import "IQRelationService.h"
 #import "IQRelationMap.h"
 #import "SDImageCache.h"
@@ -1752,6 +1753,22 @@ const NSTimeInterval TYPING_DEBOUNCE_SEC = 1.5;
     [_log info:@"Rated %d as %d", (int)ratingId, (int)value];
 }
 
+#pragma mark Files
+
+- (IQHttpRequest *_Nonnull)fileURL:(NSString *_Nonnull)fileId callback:(IQFileURLCallback _Nonnull)callback {
+    return [_client filesToken:fileId callback:^(IQFileToken *token, NSError *error) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (error != nil) {
+                callback(nil, error);
+                return;
+            }
+            
+            NSURL *url = [_client fileURL:fileId token:token.Token];
+            callback(url, nil);
+        });
+    }];
+}
+
 #pragma mark Static methods
 
 + (IQChannels *)instance {
@@ -1829,6 +1846,10 @@ const NSTimeInterval TYPING_DEBOUNCE_SEC = 1.5;
 
 + (void)rate:(int64_t)ratingId value:(int32_t)value {
     [[self instance] rate:ratingId value:value];
+}
+
++ (IQHttpRequest *_Nonnull)fileURL:(NSString *_Nonnull)fileId callback:(IQFileURLCallback _Nonnull)callback {
+    return [[self instance] fileURL:fileId callback:callback];
 }
 
 @end

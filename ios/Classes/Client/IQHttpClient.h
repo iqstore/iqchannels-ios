@@ -20,6 +20,7 @@
 @class IQHttpRequest;
 @class IQRelationService;
 @class IQFile;
+@class IQFileToken;
 
 
 typedef void (^IQHttpVoidCallback)(NSError *);
@@ -30,6 +31,7 @@ typedef void (^IQHttpMessagesCallback)(NSArray<IQChatMessage *> *, NSError *);
 typedef void (^IQHttpEventsCallback)(NSArray<IQChatEvent *> *, NSError *);
 typedef void (^IQHttpUnreadCallback)(NSNumber *, NSError *);
 typedef void (^IQHttpFileCallback)(IQFile *, NSError *);
+typedef void (^IQHttpFileTokenCallback)(IQFileToken *, NSError *);
 
 
 @interface IQHttpClient : NSObject
@@ -61,6 +63,8 @@ typedef void (^IQHttpFileCallback)(IQFile *, NSError *);
 // Files
 
 - (IQHttpRequest *)filesUploadImage:(NSString *)filename data:(NSData *)data callback:(IQHttpFileCallback)callback;
+- (IQHttpRequest *)filesToken:(NSString *)fileId callback:(IQHttpFileTokenCallback)callback;
+- (NSURL *)fileURL:(NSString *)fileId token:(NSString *)token;
 
 // Ratings
 

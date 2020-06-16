@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'IQChannels'
-  s.version          = '1.2.1'
+  s.version          = '1.3.0'
   s.summary          = 'IQChannels SDK'
   s.description      = <<-DESC
 IQChannels iOS SDK
@@ -31,3 +31,4 @@ IQChannels iOS SDK
   s.dependency 'SDWebImage', '~>3.8'
   s.dependency 'TRVSEventSource', '0.0.8'
 end
+

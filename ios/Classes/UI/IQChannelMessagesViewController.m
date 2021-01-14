@@ -580,28 +580,30 @@
     }
 
     if (user.AvatarURL) {
-        [[SDWebImageManager sharedManager] downloadImageWithURL:user.AvatarURL options:0 progress:nil completed:
-                ^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        if (error) {
-                            return;
-                        }
-                        if (!image) {
-                            return;
-                        }
+        SDWebImageManager *m = [SDWebImageManager sharedManager];
+        
+        [m loadImageWithURL:user.AvatarURL options:0 progress:nil completed:
+         ^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (error) {
+                    return;
+                }
+                if (!image) {
+                    return;
+                }
 
-                        user.AvatarImage = image;
-                        NSInteger index = 0;
-                        if (message.My) {
-                            index = [self getMyMessageByLocalId:message.LocalId];
-                        } else {
-                            index = [self getMessageIndexById:message.Id];
-                        }
+                user.AvatarImage = image;
+                NSInteger index = 0;
+                if (message.My) {
+                    index = [self getMyMessageByLocalId:message.LocalId];
+                } else {
+                    index = [self getMessageIndexById:message.Id];
+                }
 
-                        NSIndexPath *path = [NSIndexPath indexPathForItem:index inSection:0];
-                        [self.collectionView reloadItemsAtIndexPaths:@[path]];
-                    });
-                }];
+                NSIndexPath *path = [NSIndexPath indexPathForItem:index inSection:0];
+                [self.collectionView reloadItemsAtIndexPaths:@[path]];
+            });
+        }];
     }
 
     NSString *initials = [message.User.Name substringWithRange:NSMakeRange(0, 1)];

@@ -61,4 +61,5 @@
 // UI
 #import "IQActivityIndicator.h"
 #import "IQChannelMessagesViewController.h"
+#import "JSQMessageViewController+IQChannels.h"
 #import "UIAlertView+IQChannels.h"

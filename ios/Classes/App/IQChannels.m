@@ -30,6 +30,7 @@
 #import "JSQPhotoMediaItem.h"
 #import "IQFile.h"
 #import "SDWebImageManager.h"
+#import "SDWebImageDownloader.h"
 #import "IQSettings.h"
 #import "NSError+IQChannels.h"
 
@@ -116,7 +117,7 @@ const NSTimeInterval TYPING_DEBOUNCE_SEC = 1.5;
     _client = [[IQHttpClient alloc] initWithLog:_log relations:_relations address:@""];
     _settings = [[IQSettings alloc] init];
     _cache = [[SDImageCache alloc] initWithNamespace:@"ru.iqchannels"];
-    _imageManager = [[SDWebImageManager alloc] initWithCache:_cache downloader:[SDWebImageDownloader sharedDownloader]];
+    _imageManager = [[SDWebImageManager alloc] initWithCache:_cache loader:[SDWebImageDownloader sharedDownloader]];
 
     _stateListeners = [[NSMutableSet alloc] init];
     _unreadListeners = [[NSMutableSet alloc] init];
@@ -244,7 +245,7 @@ const NSTimeInterval TYPING_DEBOUNCE_SEC = 1.5;
     _anonymous = NO;
     _credentials = nil;
     [_cache clearMemory];
-    [_cache clearDisk];
+    [_cache clearDiskOnCompletion:nil];
 
     [_log info:@"Logged out"];
     [self setState:IQChannelsStateLoggedOut];
@@ -1064,22 +1065,18 @@ const NSTimeInterval TYPING_DEBOUNCE_SEC = 1.5;
     if ([_imageDownloading objectForKey:@(messageId)]) {
         return;
     }
+    
+    _imageDownloading[@(messageId)] = [_imageManager loadImageWithURL:url options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (error || !image) {
+                [self loadMessageMedia:messageId url:url failedWithError:error];
+                return;
+            }
 
-    _imageDownloading[@(messageId)] = [_imageManager
-            downloadImageWithURL:url
-                         options:SDWebImageCacheMemoryOnly
-                        progress:^(NSInteger receivedSize, NSInteger expectedSize) {
-                        }
-                       completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
-                           dispatch_async(dispatch_get_main_queue(), ^{
-                               if (error || !image) {
-                                   [self loadMessageMedia:messageId url:url failedWithError:error];
-                                   return;
-                               }
-
-                               [self loadedMessage:messageId url:url media:image];
-                           });
-                       }];
+            [self loadedMessage:messageId url:url media:image];
+        });
+    }];
+    
     [_log debug:@"Loading a message image, messageId=%lli, url=%@", messageId, url];
 }
 

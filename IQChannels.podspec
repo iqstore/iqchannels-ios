@@ -28,7 +28,7 @@ IQChannels iOS SDK
   s.requires_arc = true
 
   s.dependency 'JSQMessagesViewController', '~> 7.3.5'
-  s.dependency 'SDWebImage', '~>3.8'
+  s.dependency 'SDWebImage', '~>5.10'
   s.dependency 'TRVSEventSource', '0.0.8'
 end
 

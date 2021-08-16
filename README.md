@@ -57,9 +57,18 @@ pod install
     IQChannelsConfig *config = [[IQChannelsConfig alloc] initWithAddress:server channel:@"support"];
     
     // Конфигурируем SDK.
-    [IQChannels configure:config];
+    [IQChannels configure:config]
+
+    // Если нужно, проставляем кастомные заголовки.
+    NSDictionary<NSString *, NSString*> *headers = @{@"Hello": @"World"};
+    [IQChannels setCustomHeaders:headers];
     return YES;
 }
+```
+
+Кастомные заголовки:
+```objc
+
 ```
 
 

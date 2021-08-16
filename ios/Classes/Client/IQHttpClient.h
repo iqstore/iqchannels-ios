@@ -39,6 +39,7 @@ typedef void (^IQHttpFileTokenCallback)(IQFileToken *, NSError *);
 @property(nonatomic) NSString *token;
 
 - (instancetype)initWithLog:(IQLog *)log relations:(IQRelationService *)relations address:(NSString *)address;
+- (void)setCustomeHeaders:(NSDictionary<NSString*, NSString*>*)headers;
 
 // Clients
 

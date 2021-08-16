@@ -22,6 +22,7 @@ typedef void (^IQFileURLCallback)(NSURL *_Nullable, NSError *_Nullable);
 + (void)configure:(IQChannelsConfig *_Nonnull)config;
 + (void)pushToken:(NSData *_Nullable)token;
 + (IQSubscription *_Nonnull)state:(id <IQChannelsStateListener> _Nonnull)listener;
++ (void)setCustomHeaders:(NSDictionary<NSString*, NSString*>*)headers;
 
 // Login/logout
 

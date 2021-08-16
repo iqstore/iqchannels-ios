@@ -59,9 +59,12 @@ NSString *const userDefaultsLoginServerValue = @"https://app.iqstore.ru";
         [_userDefaults setObject:server forKey:userDefaultsLoginServerKey];
         [_userDefaults synchronize];
     }
-
+    
     IQChannelsConfig *config = [[IQChannelsConfig alloc] initWithAddress:server channel:@"support"];
+    NSDictionary<NSString *, NSString*> *headers = @{@"Hello": @"World"};
+    
     [IQChannels configure:config];
+    [IQChannels setCustomHeaders:headers];
     [_serverButton setTitle:server forState:UIControlStateNormal];
 }
 

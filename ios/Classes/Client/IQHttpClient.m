@@ -32,6 +32,7 @@
     IQLog *_log;
     NSURLSession *_Nonnull _session;
     IQRelationService *_Nonnull _relations;
+    NSDictionary<NSString*, NSString*>* _customHeaders;
 }
 
 - (id)initWithLog:(IQLog *)log relations:(IQRelationService *)relations address:(NSString *)address {
@@ -44,6 +45,10 @@
     _session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration ephemeralSessionConfiguration]];
     _relations = relations;
     return self;
+}
+
+- (void)setCustomeHeaders:(NSDictionary<NSString*, NSString*>*)headers {
+    _customHeaders = headers;
 }
 
 - (IQHttpRequest *)clientsSignup:(NSString *)channel callback:(IQHttpClientSignupCallback)callback {
@@ -347,6 +352,18 @@
         NSString *auth = [NSString stringWithFormat:@"Client %@", _token];
         [request addValue:auth forHTTPHeaderField:@"Authorization"];
     }
+    
+    if (_customHeaders) {
+        for (NSString *key in _customHeaders) {
+            NSString *value = _customHeaders[key];
+            if (!value) {
+                continue;
+            }
+            
+            [request addValue:value forHTTPHeaderField:key];
+        }
+    }
+    
     if (!json) {
         return request;
     }
@@ -372,6 +389,17 @@
     NSString *boundary = [self requestMultipartBoundary];
     NSString *contentType = [NSString stringWithFormat:@"multipart/form-data; boundary=%@", boundary];
     [request addValue:contentType forHTTPHeaderField:@"Content-Type"];
+    
+    if (_customHeaders) {
+        for (NSString *key in _customHeaders) {
+            NSString *value = _customHeaders[key];
+            if (!value) {
+                continue;
+            }
+            
+            [request addValue:value forHTTPHeaderField:key];
+        }
+    }
 
     NSData *body = [self requestMultipartBodyWithParams:params files:files boundary:boundary];
     request.HTTPBody = body;

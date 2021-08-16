@@ -169,9 +169,16 @@ const NSTimeInterval TYPING_DEBOUNCE_SEC = 1.5;
     _config = [config copy];
     _client.address = _config.address;
     _relations.address = _config.address;
+    if (_config.customHeaders) {
+        [_client setCustomeHeaders:_config.customHeaders];
+    }
     [_log info:@"Configured, channel=%@, address=%@", _config.channel, _config.address];
-
+    
     [self auth];
+}
+
+- (void)setCustomHeaders:(NSDictionary<NSString*, NSString*>*)headers {
+    [_client setCustomeHeaders:headers];
 }
 
 #pragma mark State
@@ -1779,6 +1786,10 @@ const NSTimeInterval TYPING_DEBOUNCE_SEC = 1.5;
 
 + (void)configure:(IQChannelsConfig *)config {
     [[self instance] configure:config];
+}
+
++ (void)setCustomHeaders:(NSDictionary<NSString*, NSString*>*)headers {
+    [[self instance] setCustomHeaders: headers];
 }
 
 + (void)pushToken:(NSData *)token {

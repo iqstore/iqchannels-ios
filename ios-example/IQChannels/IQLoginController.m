@@ -61,7 +61,7 @@ NSString *const userDefaultsLoginServerValue = @"https://app.iqstore.ru";
     }
     
     IQChannelsConfig *config = [[IQChannelsConfig alloc] initWithAddress:server channel:@"support"];
-    NSDictionary<NSString *, NSString*> *headers = @{@"Hello": @"World"};
+    NSDictionary<NSString *, NSString*> *headers = @{@"User-Agent": @"MyAgent"};
     
     [IQChannels configure:config];
     [IQChannels setCustomHeaders:headers];

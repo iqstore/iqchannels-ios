@@ -17,15 +17,20 @@
 }
 
 - (instancetype)initWithUrl:(NSURL *)url authToken:(NSString *)authToken
+              customHeaders:(NSDictionary<NSString*, NSString*>*)customHeaders
                    callback:(IQHttpEventSourceCallback)callback {
     if (!(self = [super init])) {
         return nil;
     }
 
     NSURLSessionConfiguration *config = [NSURLSessionConfiguration ephemeralSessionConfiguration];
-    config.HTTPAdditionalHeaders = @{
-            @"Authorization": [NSString stringWithFormat:@"Client %@", authToken]
-    };
+    
+    NSMutableDictionary* additionalHeaders = [NSMutableDictionary new];
+    additionalHeaders[@"Authorization"] =  [NSString stringWithFormat:@"Client %@", authToken];
+    if (customHeaders) {
+        [additionalHeaders addEntriesFromDictionary:customHeaders];
+    }
+    config.HTTPAdditionalHeaders = additionalHeaders;
 
     _callback = callback;
     _eventSource = [[TRVSEventSource alloc] initWithURL:url sessionConfiguration:config];
@@ -33,7 +38,6 @@
     [_eventSource open];
     return self;
 }
-
 - (void)close {
     [_eventSource close];
 }

@@ -171,6 +171,7 @@ const NSTimeInterval TYPING_DEBOUNCE_SEC = 1.5;
     _relations.address = _config.address;
     if (_config.customHeaders) {
         [_client setCustomeHeaders:_config.customHeaders];
+        [self sdWebImageSetCustomHeaders:_config.customHeaders];
     }
     [_log info:@"Configured, channel=%@, address=%@", _config.channel, _config.address];
     
@@ -179,6 +180,14 @@ const NSTimeInterval TYPING_DEBOUNCE_SEC = 1.5;
 
 - (void)setCustomHeaders:(NSDictionary<NSString*, NSString*>*)headers {
     [_client setCustomeHeaders:headers];
+    [self sdWebImageSetCustomHeaders:headers];
+}
+
+-  (void)sdWebImageSetCustomHeaders:(NSDictionary<NSString*, NSString*>*)headers
+{
+    [headers enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, NSString * _Nonnull obj, BOOL * _Nonnull stop) {
+        [[SDWebImageDownloader sharedDownloader] setValue:obj forHTTPHeaderField:key];
+    }];
 }
 
 #pragma mark State

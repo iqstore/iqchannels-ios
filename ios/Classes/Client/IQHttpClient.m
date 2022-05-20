@@ -495,7 +495,9 @@
     NSURL *url = [self requestUrl:path];
     [_log debug:@"SSE %@", url.absoluteString];
 
-    IQHttpEventSource *eventSource = [[IQHttpEventSource alloc] initWithUrl:url authToken:_token callback:
+    IQHttpEventSource *eventSource = [[IQHttpEventSource alloc] initWithUrl:url authToken:_token
+                                                                   customHeaders:_customHeaders
+                                                                   callback:
             ^(NSData *data, NSError *error) {
                 if (error != nil) {
                     [_log debug:@"SSE ERROR %@ error=%@", url.absoluteString, error.localizedDescription];

@@ -55,7 +55,7 @@
 
 /* Begin PBXFileReference section */
 		0A37C4E3794ED88B04734F5C /* Pods-IQChannels_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-IQChannels_Example.release.xcconfig"; path = "Pods/Target Support Files/Pods-IQChannels_Example/Pods-IQChannels_Example.release.xcconfig"; sourceTree = "<group>"; };
-		277887A56DF0280016F2AA5E /* IQChannels.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = IQChannels.podspec; path = ../IQChannels.podspec; sourceTree = "<group>"; };
+		277887A56DF0280016F2AA5E /* IQChannels.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = IQChannels.podspec; path = ../IQChannels.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		2C75BA1D1D865C0000B8914F /* Icon-60@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-60@2x.png"; sourceTree = "<group>"; };
 		2C75BA1E1D865C0000B8914F /* Icon-60@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-60@3x.png"; sourceTree = "<group>"; };
 		2C75BA1F1D865C0000B8914F /* Icon-Small-40@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-Small-40@2x.png"; sourceTree = "<group>"; };
@@ -327,7 +327,8 @@
 				ORGANIZATIONNAME = "Ivan Korobkov";
 				TargetAttributes = {
 					6003F589195388D20070C39A = {
-						DevelopmentTeam = 7JV3SUMA3E;
+						DevelopmentTeam = TFCP6F78C7;
+						ProvisioningStyle = Manual;
 						SystemCapabilities = {
 							com.apple.Push = {
 								enabled = 1;
@@ -335,6 +336,7 @@
 						};
 					};
 					6003F5AD195388D20070C39A = {
+						DevelopmentTeam = Y8D39VAV9X;
 						TestTargetID = 6003F589195388D20070C39A;
 					};
 				};
@@ -548,7 +550,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -586,7 +588,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
@@ -600,14 +602,19 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_ENTITLEMENTS = IQChannels_Example.entitlements;
-				DEVELOPMENT_TEAM = 7JV3SUMA3E;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = TFCP6F78C7;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "IQChannels/IQChannels-Prefix.pch";
 				INFOPLIST_FILE = "IQChannels/IQChannels-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MODULE_NAME = ExampleApp;
-				PRODUCT_BUNDLE_IDENTIFIER = "ru.iqstore.IQChannels-Example";
+				PRODUCT_BUNDLE_IDENTIFIER = com.iqchannels.example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "iQChannel debug";
 				TARGETED_DEVICE_FAMILY = 1;
 				WRAPPER_EXTENSION = app;
 			};
@@ -620,14 +627,19 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_ENTITLEMENTS = IQChannels_Example.entitlements;
-				DEVELOPMENT_TEAM = 7JV3SUMA3E;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = TFCP6F78C7;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "IQChannels/IQChannels-Prefix.pch";
 				INFOPLIST_FILE = "IQChannels/IQChannels-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MODULE_NAME = ExampleApp;
-				PRODUCT_BUNDLE_IDENTIFIER = "ru.iqstore.IQChannels-Example";
+				PRODUCT_BUNDLE_IDENTIFIER = com.iqchannels.example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "iQChannel release";
 				TARGETED_DEVICE_FAMILY = 1;
 				WRAPPER_EXTENSION = app;
 			};
@@ -638,6 +650,7 @@
 			baseConfigurationReference = 74888B0AD1B0A2053B7EC3A6 /* Pods-IQChannels_Tests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				DEVELOPMENT_TEAM = Y8D39VAV9X;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -650,7 +663,7 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
-				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_BUNDLE_IDENTIFIER = com.iqchannels.example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/IQChannels_Example.app/IQChannels_Example";
 				WRAPPER_EXTENSION = xctest;
@@ -662,6 +675,7 @@
 			baseConfigurationReference = 8D50CCDCA71E656981C4C77A /* Pods-IQChannels_Tests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				DEVELOPMENT_TEAM = Y8D39VAV9X;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -670,7 +684,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Tests/Tests-Prefix.pch";
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
-				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_BUNDLE_IDENTIFIER = com.iqchannels.example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/IQChannels_Example.app/IQChannels_Example";
 				WRAPPER_EXTENSION = xctest;

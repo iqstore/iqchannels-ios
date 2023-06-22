@@ -55,7 +55,7 @@
 
 /* Begin PBXFileReference section */
 		0A37C4E3794ED88B04734F5C /* Pods-IQChannels_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-IQChannels_Example.release.xcconfig"; path = "Pods/Target Support Files/Pods-IQChannels_Example/Pods-IQChannels_Example.release.xcconfig"; sourceTree = "<group>"; };
-		277887A56DF0280016F2AA5E /* IQChannels.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = IQChannels.podspec; path = ../IQChannels.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		277887A56DF0280016F2AA5E /* IQChannels.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = IQChannels.podspec; path = ../IQChannels.podspec; sourceTree = "<group>"; };
 		2C75BA1D1D865C0000B8914F /* Icon-60@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-60@2x.png"; sourceTree = "<group>"; };
 		2C75BA1E1D865C0000B8914F /* Icon-60@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-60@3x.png"; sourceTree = "<group>"; };
 		2C75BA1F1D865C0000B8914F /* Icon-Small-40@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-Small-40@2x.png"; sourceTree = "<group>"; };

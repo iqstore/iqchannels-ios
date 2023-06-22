@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'IQChannels'
-  s.version          = '1.5.1'
+  s.version          = '1.5.2'
   s.summary          = 'IQChannels SDK'
   s.description      = <<-DESC
 IQChannels iOS SDK
@@ -18,8 +18,8 @@ IQChannels iOS SDK
   s.author           = { 'Ivan Korobkov' => 'i.korobkov@iqstore.ru' }
   s.source           = { :git => 'https://github.com/iqstore/iqchannels-ios.git', :tag => s.version.to_s }
 
-  s.platform = :ios, '9.0'
-  s.ios.deployment_target = '9.0'
+  s.platform = :ios, '13.0'
+  s.ios.deployment_target = '13.0'
   s.resources = 'ios/Classes/UI/*.{xib}'
   s.resource_bundles = {
     'IQChannels' => ['ios/Assets/Images.xcassets']
@@ -27,7 +27,7 @@ IQChannels iOS SDK
   s.source_files = 'ios/Classes/**/*.{h,m}'
   s.requires_arc = true
 
-  s.dependency 'JSQMessagesViewController', '~> 7.3.5'
+  s.dependency 'JSQMessagesViewController'
   s.dependency 'SDWebImage', '~>5.10'
   s.dependency 'TRVSEventSource', '0.0.8'
 end

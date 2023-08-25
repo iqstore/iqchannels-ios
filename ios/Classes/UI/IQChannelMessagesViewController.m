@@ -622,6 +622,9 @@
     IQChatMessage *message = _messages[(NSUInteger) indexPath.item];
     if (message.My) {
         cell.textView.textColor = [UIColor whiteColor];
+        UIImage *image = cell.messageBubbleImageView.image;
+        cell.messageBubbleImageView.image = [image imageWithRenderingMode: UIImageRenderingModeAlwaysTemplate];
+        [cell.messageBubbleImageView setTintColor: [UIColor colorWithHex: 0xDCF5C0]];
     } else {
         cell.textView.textColor = [UIColor blackColor];
 
@@ -633,6 +636,12 @@
             }
         }
     }
+
+    cell.textView.linkTextAttributes = @{
+        NSForegroundColorAttributeName : [UIColor colorWithHex: 0x0275d8],
+        NSUnderlineStyleAttributeName : @(NSUnderlineStyleSingle | NSUnderlinePatternSolid)
+    };
+
     if (message.isMediaMessage) {
         [IQChannels loadMessageMedia:message.Id];
     }

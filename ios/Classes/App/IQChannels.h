@@ -39,6 +39,7 @@ typedef void (^IQFileURLCallback)(NSURL *_Nullable, NSError *_Nullable);
 + (void)typing;
 + (void)sendText:(NSString *_Nonnull)text;
 + (void)sendImage:(UIImage *_Nonnull)image filename:(NSString *_Nullable)filename;
++ (void)sendData:(NSData *_Nonnull)data filename:(NSString *_Nullable)filename;
 + (void)deleteFailedUpload:(int64_t)localId;
 + (void)retryUpload:(int64_t)localId;
 + (void)markAsRead:(int64_t)messageId;

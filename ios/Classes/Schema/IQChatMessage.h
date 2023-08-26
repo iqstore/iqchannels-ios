@@ -75,6 +75,7 @@
 
 // Local
 @property(nonatomic, nullable) UIImage *UploadImage;
+@property(nonatomic, nullable) NSData *UploadData;
 @property(nonatomic, copy, nullable) NSString *UploadFilename;
 @property(nonatomic) BOOL Uploaded;
 @property(nonatomic) BOOL Uploading;
@@ -91,6 +92,11 @@
 - (instancetype _Nonnull)initWithClient:(IQClient *_Nonnull)client
                                 localId:(int64_t)localId
                                   image:(UIImage *_Nonnull)image
+                               fileName:(NSString *_Nonnull)fileName;
+
+- (instancetype _Nonnull)initWithClient:(IQClient *_Nonnull)client
+                                localId:(int64_t)localId
+                                   data:(NSData *_Nonnull)data
                                fileName:(NSString *_Nonnull)fileName;
 
 - (void)mergeWithCreatedMessage:(IQChatMessage *_Nonnull)message;

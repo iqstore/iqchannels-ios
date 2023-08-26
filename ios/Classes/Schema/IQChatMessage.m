@@ -127,6 +127,21 @@
     return self;
 }
 
+- (instancetype)initWithClient:(IQClient *)client
+                       localId:(int64_t)localId
+                          data:(NSData *)data
+                      fileName:(NSString *)fileName {
+    if (!(self = [self initWithClient:client localId:localId])) {
+        return nil;
+    }
+
+    _Payload = IQChatPayloadFile;
+    _UploadData = data;
+    _UploadFilename = fileName;
+    
+    return self;
+}
+
 - (void)mergeWithCreatedMessage:(IQChatMessage *)message {
     // Ids
     _Id = message.Id;

@@ -64,6 +64,7 @@ typedef void (^IQHttpFileTokenCallback)(IQFileToken *, NSError *);
 // Files
 
 - (IQHttpRequest *)filesUploadImage:(NSString *)filename data:(NSData *)data callback:(IQHttpFileCallback)callback;
+- (IQHttpRequest *)filesUploadData:(NSString *)filename data:(NSData *)data callback:(IQHttpFileCallback)callback;
 - (IQHttpRequest *)filesToken:(NSString *)fileId callback:(IQHttpFileTokenCallback)callback;
 - (NSURL *)fileURL:(NSString *)fileId token:(NSString *)token;
 

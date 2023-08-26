@@ -23,7 +23,7 @@
 
 @interface IQChannelMessagesViewController () <IQChannelsStateListener, IQChannelsMessagesListener,
         IQChannelsMoreMessagesListener, UIActionSheetDelegate, UINavigationControllerDelegate,
-        UIImagePickerControllerDelegate, UIGestureRecognizerDelegate>
+        UIImagePickerControllerDelegate, UIGestureRecognizerDelegate, UIDocumentPickerDelegate>
 @property(nonatomic) UIRefreshControl *refreshControl;
 @property(nonatomic) IQActivityIndicator *loginIndicator;
 @property(nonatomic) IQActivityIndicator *messagesIndicator;
@@ -526,6 +526,7 @@
     if (hasCamera) {
         [_pickerActionSheet addButtonWithTitle:@"Камера"];
     }
+    [_pickerActionSheet addButtonWithTitle:@"Файл"];
     [_pickerActionSheet showInView:self.view];
 }
 
@@ -872,6 +873,9 @@ heightForCellBottomLabelAtIndexPath:(NSIndexPath *)indexPath {
             case 2:
                 [self showCamera];
                 break;
+            case 3:
+                [self showFiles];
+                break;
             default:
                 break;
         }
@@ -961,6 +965,25 @@ heightForCellBottomLabelAtIndexPath:(NSIndexPath *)indexPath {
     }
 }
 
+- (void)showFiles {
+    UIDocumentPickerViewController *documentPicker = [[UIDocumentPickerViewController alloc] initWithDocumentTypes:@[@"public.data"]
+                                                                                                            inMode:UIDocumentPickerModeImport];
+        documentPicker.delegate = self;
+        documentPicker.modalPresentationStyle = UIModalPresentationFormSheet;
+        [self presentViewController:documentPicker animated:YES completion:nil];
+}
+
+- (void)documentPicker:(UIDocumentPickerViewController *)controller
+didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls {
+    if (controller.documentPickerMode == UIDocumentPickerModeImport) {
+        NSURL *url = urls[0];
+        NSData *data = [NSData dataWithContentsOfURL:url];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self sendData:data filename:url.lastPathComponent];
+        });
+    }
+}
+
 - (void)showImagePicker:(UIImagePickerControllerSourceType)source {
     UIImagePickerController *picker = [[UIImagePickerController alloc] init];
     picker.modalPresentationStyle = UIModalPresentationCurrentContext;
@@ -1032,6 +1055,10 @@ heightForCellBottomLabelAtIndexPath:(NSIndexPath *)indexPath {
 
 - (void)sendImage:(UIImage *)image filename:(NSString *)filename {
     [IQChannels sendImage:image filename:filename];
+}
+
+- (void)sendData:(NSData *)data filename:(NSString *)filename {
+    [IQChannels sendData:data filename:filename];
 }
 
 - (void)retryUpload:(int64_t)localId {

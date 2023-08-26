@@ -899,6 +899,23 @@ const NSTimeInterval TYPING_DEBOUNCE_SEC = 1.5;
     }
 }
 
+- (void)messageTyping:(IQChatEvent *)event {
+    if ([event.Actor isEqual:IQActorClient]) {
+        return;
+    }
+
+    IQChatMessage *message = [self getMessageById:event.MessageId.longLongValue];
+    if (message.EventId.longLongValue > event.Id) {
+        return;
+    }
+
+    for (id <IQChannelsMessagesListener> listener in _messageListeners) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [listener iq_messageTyping: event.User];
+        });
+    }
+}
+
 - (IQChatMessage *)getMessageById:(int64_t)messageId {
     NSInteger index = [self getMessageIndexById:messageId];
     if (index == -1) {
@@ -1240,6 +1257,8 @@ const NSTimeInterval TYPING_DEBOUNCE_SEC = 1.5;
 
     } else if ([type isEqualToString:IQChatEventMessageRead]) {
         [self messageRead:event];
+    } else if ([type isEqualToString:IQChatEventTyping]) {
+        [self messageTyping:event];
     }
 }
 

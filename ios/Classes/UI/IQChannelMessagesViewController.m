@@ -644,6 +644,20 @@
         cell.textView.selectable = YES;
     }
 
+    if (message.isFileMessage) {
+        if (message.My) {
+            JSQMessagesCollectionViewCellOutgoing *outgoingCell = (JSQMessagesCollectionViewCellOutgoing *)cell;
+            outgoingCell.fileImageViewWidthConstraint.constant = 18;
+            outgoingCell.fileImageViewLeadingConstraint.constant = 10;
+            outgoingCell.fileImageViewTrailingConstraint.constant = 6;
+        } else {
+            JSQMessagesCollectionViewCellIncoming *incomingCell = (JSQMessagesCollectionViewCellIncoming *)cell;
+            incomingCell.fileImageViewWidthConstraint.constant = 18;
+            incomingCell.fileImageViewLeadingConstraint.constant = 18;
+            incomingCell.fileImageViewTrailingConstraint.constant = -6;
+        }
+    }
+
     return cell;
 }
 

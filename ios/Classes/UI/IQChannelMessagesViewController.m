@@ -993,9 +993,29 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls {
         NSURL *url = urls[0];
         NSData *data = [NSData dataWithContentsOfURL:url];
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self sendData:data filename:url.lastPathComponent];
+            [self confirmDataSubmission:data filename:url.lastPathComponent];
         });
     }
+}
+
+- (void)confirmDataSubmission:(NSData *)data filename:(NSString *)filename {
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Подтвердите отправку файла"
+                                                                             message:filename
+                                                                      preferredStyle:UIAlertControllerStyleActionSheet];
+    UIAlertAction * okAction = [UIAlertAction actionWithTitle:@"Отправить"
+                                                        style:UIAlertActionStyleDefault
+                                                      handler:^(UIAlertAction * action) {
+        [self sendData:data filename:filename];
+    }];
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Отмена"
+                                                           style:UIAlertActionStyleCancel
+                                                         handler:^(UIAlertAction * action) {
+    }];
+
+    [alertController addAction:cancelAction];
+    [alertController addAction:okAction];
+
+    [self presentViewController:alertController animated: YES completion: nil];
 }
 
 - (void)showImagePicker:(UIImagePickerControllerSourceType)source {

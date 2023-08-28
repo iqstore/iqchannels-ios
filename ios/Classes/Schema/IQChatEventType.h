@@ -17,3 +17,4 @@ extern IQChatEventType const IQChatEventMessageCreated;
 extern IQChatEventType const IQChatEventSystemMessageCreated;
 extern IQChatEventType const IQChatEventMessageReceived;
 extern IQChatEventType const IQChatEventMessageRead;
+extern IQChatEventType const IQChatEventDeleteMessages;

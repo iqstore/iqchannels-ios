@@ -38,6 +38,9 @@
     event.Actor = [IQJSON stringFromObject:object key:@"Actor"];
     event.ClientId = [IQJSON numberFromObject:object key:@"ClientId"];
     event.UserId = [IQJSON numberFromObject:object key:@"UserId"];
+
+    event.Messages = [IQChatMessage fromJSONArray:[IQJSON arrayFromObject:object key:@"Messages"]];
+
     return event;
 }
 

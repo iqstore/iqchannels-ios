@@ -16,4 +16,5 @@
 - (void)iq_messageSent:(IQChatMessage *)message;
 - (void)iq_messageUpdated:(IQChatMessage *)message;
 - (void)iq_messageTyping:(IQUser *)user;
+- (void)iq_messagesRemoved:(NSArray<IQChatMessage *> *)messages;
 @end

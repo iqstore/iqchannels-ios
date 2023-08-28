@@ -916,6 +916,15 @@ const NSTimeInterval TYPING_DEBOUNCE_SEC = 1.5;
     }
 }
 
+- (void)messagesRemoved:(IQChatEvent *)event {
+    NSArray<IQChatMessage *> *Messages = event.Messages;
+    for (id <IQChannelsMessagesListener> listener in _messageListeners) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [listener iq_messagesRemoved:Messages];
+        });
+    }
+}
+
 - (IQChatMessage *)getMessageById:(int64_t)messageId {
     NSInteger index = [self getMessageIndexById:messageId];
     if (index == -1) {
@@ -1259,6 +1268,8 @@ const NSTimeInterval TYPING_DEBOUNCE_SEC = 1.5;
         [self messageRead:event];
     } else if ([type isEqualToString:IQChatEventTyping]) {
         [self messageTyping:event];
+    } else if ([type isEqualToString:IQChatEventDeleteMessages]) {
+        [self messagesRemoved:event];
     }
 }
 

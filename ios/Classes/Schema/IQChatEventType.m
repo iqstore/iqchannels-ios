@@ -16,3 +16,4 @@ IQChatEventType const IQChatEventMessageCreated = @"message_created";
 IQChatEventType const IQChatEventSystemMessageCreated = @"system_message_created";
 IQChatEventType const IQChatEventMessageReceived = @"message_received";
 IQChatEventType const IQChatEventMessageRead = @"message_read";
+IQChatEventType const IQChatEventDeleteMessages = @"delete-messages";

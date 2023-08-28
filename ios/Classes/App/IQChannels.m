@@ -1536,6 +1536,35 @@ const NSTimeInterval TYPING_DEBOUNCE_SEC = 1.5;
     }
 }
 
+- (void)sendData:(NSData *)data fileName:(NSString *)fileName {
+    if (!_auth) {
+        return;
+    }
+    if (!data) {
+        return;
+    }
+
+    int64_t localId = [self nextLocalId];
+    fileName = (fileName && fileName.length > 0) ? fileName : @"data";
+
+    IQChatMessage *message = [[IQChatMessage alloc] initWithClient:_auth.Client
+                                                           localId:localId
+                                                              data:data
+                                                          fileName:fileName];
+
+    IQRelationMap *map = [[IQRelationMap alloc] initWithClient:_auth.Client];
+    [_relations chatMessage:message withMap:map];
+
+    [self appendMessage:message];
+    [self uploadFileMessage:message];
+
+    for (id <IQChannelsMessagesListener> listener in _messageListeners) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [listener iq_messageSent:message];
+        });
+    }
+}
+
 - (void)sendMessage:(IQChatMessage *)message {
     if (!_auth) {
         return;
@@ -1700,6 +1729,47 @@ const NSTimeInterval TYPING_DEBOUNCE_SEC = 1.5;
     [_log info:@"Uploading a message image, localId=%lli, fileName=%@", localId, filename];
 }
 
+- (void)uploadFileMessage:(IQChatMessage *)message {
+    if (!_auth) {
+        return;
+    }
+    int64_t localId = message.LocalId;
+    if (localId == 0) {
+        return;
+    }
+    NSData *data = message.UploadData;
+    if (!data) {
+        return;
+    }
+    if (message.Uploaded) {
+        return;
+    }
+    if (_uploading[@(localId)]) {
+        return;
+    }
+
+    NSString *filename = message.UploadFilename;
+    if (filename.length == 0) {
+        filename = [self uploadImageDefaultFilename];
+    }
+
+    message.Uploaded = NO;
+    message.Uploading = NO;
+    message.UploadError = nil;
+
+    _uploading[@(localId)] = [_client filesUploadData:filename data:data callback:^(IQFile *file, NSError *error) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (error != nil) {
+                [self uploadMessage:localId failedWithError:error];
+                return;
+            }
+
+            [self uploadedMessage:localId file:file];
+        });
+    }];
+    [_log info:@"Uploading a message image, localId=%lli, fileName=%@", localId, filename];
+}
+
 - (NSString *)uploadImageDefaultFilename {
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
     [dateFormatter setDateFormat:@"yyyy-MM-dd_HH-mm"];
@@ -1847,6 +1917,10 @@ const NSTimeInterval TYPING_DEBOUNCE_SEC = 1.5;
 
 + (void)sendImage:(UIImage *_Nonnull)image filename:(NSString *_Nullable)filename {
     [[self instance] sendImage:image fileName:filename];
+}
+
++ (void)sendData:(NSData *_Nonnull)data filename:(NSString *_Nullable)filename {
+    [[self instance] sendData:data fileName:filename];
 }
 
 + (void)retryUpload:(int64_t)localId {

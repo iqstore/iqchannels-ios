@@ -227,6 +227,23 @@
     }];
 }
 
+- (IQHttpRequest *)filesUploadData:(NSString *)filename data:(NSData *)data callback:(IQHttpFileCallback)callback {
+    NSString *path = @"/files/upload";
+    NSDictionary *params = @{@"Type": @"file"};
+    NSDictionary *files = @{@"File": [[IQHttpFile alloc] initWithName:filename Data:data MimeType:@""]};
+
+    return [self post:path multipart:params files:files callback:^(IQResult *result, NSError *error) {
+        if (error != nil) {
+            callback(nil, error);
+            return;
+        }
+
+        IQFile *file0 = [IQFile fromJSONObject:result.Value];
+        [_relations file:file0 withMap:result.Relations];
+        callback(file0, nil);
+    }];
+}
+
 - (IQHttpRequest *)filesToken:(NSString *)fileId callback:(IQHttpFileTokenCallback)callback {
     NSString *path = @"/files/token";
     NSDictionary *params = @{@"FileId": fileId};

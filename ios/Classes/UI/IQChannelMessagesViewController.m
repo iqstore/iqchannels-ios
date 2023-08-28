@@ -23,7 +23,7 @@
 
 @interface IQChannelMessagesViewController () <IQChannelsStateListener, IQChannelsMessagesListener,
         IQChannelsMoreMessagesListener, UIActionSheetDelegate, UINavigationControllerDelegate,
-        UIImagePickerControllerDelegate, UIGestureRecognizerDelegate>
+        UIImagePickerControllerDelegate, UIGestureRecognizerDelegate, UIDocumentPickerDelegate>
 @property(nonatomic) UIRefreshControl *refreshControl;
 @property(nonatomic) IQActivityIndicator *loginIndicator;
 @property(nonatomic) IQActivityIndicator *messagesIndicator;
@@ -526,6 +526,7 @@
     if (hasCamera) {
         [_pickerActionSheet addButtonWithTitle:@"Камера"];
     }
+    [_pickerActionSheet addButtonWithTitle:@"Файл"];
     [_pickerActionSheet showInView:self.view];
 }
 
@@ -650,6 +651,20 @@
         cell.textView.selectable = NO;
     } else {
         cell.textView.selectable = YES;
+    }
+
+    if (message.isFileMessage) {
+        if (message.My) {
+            JSQMessagesCollectionViewCellOutgoing *outgoingCell = (JSQMessagesCollectionViewCellOutgoing *)cell;
+            outgoingCell.fileImageViewWidthConstraint.constant = 18;
+            outgoingCell.fileImageViewLeadingConstraint.constant = 10;
+            outgoingCell.fileImageViewTrailingConstraint.constant = 6;
+        } else {
+            JSQMessagesCollectionViewCellIncoming *incomingCell = (JSQMessagesCollectionViewCellIncoming *)cell;
+            incomingCell.fileImageViewWidthConstraint.constant = 18;
+            incomingCell.fileImageViewLeadingConstraint.constant = 18;
+            incomingCell.fileImageViewTrailingConstraint.constant = -6;
+        }
     }
 
     return cell;
@@ -881,6 +896,9 @@ heightForCellBottomLabelAtIndexPath:(NSIndexPath *)indexPath {
             case 2:
                 [self showCamera];
                 break;
+            case 3:
+                [self showFiles];
+                break;
             default:
                 break;
         }
@@ -970,6 +988,45 @@ heightForCellBottomLabelAtIndexPath:(NSIndexPath *)indexPath {
     }
 }
 
+- (void)showFiles {
+    UIDocumentPickerViewController *documentPicker = [[UIDocumentPickerViewController alloc] initWithDocumentTypes:@[@"public.data"]
+                                                                                                            inMode:UIDocumentPickerModeImport];
+        documentPicker.delegate = self;
+        documentPicker.modalPresentationStyle = UIModalPresentationFormSheet;
+        [self presentViewController:documentPicker animated:YES completion:nil];
+}
+
+- (void)documentPicker:(UIDocumentPickerViewController *)controller
+didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls {
+    if (controller.documentPickerMode == UIDocumentPickerModeImport) {
+        NSURL *url = urls[0];
+        NSData *data = [NSData dataWithContentsOfURL:url];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self confirmDataSubmission:data filename:url.lastPathComponent];
+        });
+    }
+}
+
+- (void)confirmDataSubmission:(NSData *)data filename:(NSString *)filename {
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Подтвердите отправку файла"
+                                                                             message:filename
+                                                                      preferredStyle:UIAlertControllerStyleActionSheet];
+    UIAlertAction * okAction = [UIAlertAction actionWithTitle:@"Отправить"
+                                                        style:UIAlertActionStyleDefault
+                                                      handler:^(UIAlertAction * action) {
+        [self sendData:data filename:filename];
+    }];
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Отмена"
+                                                           style:UIAlertActionStyleCancel
+                                                         handler:^(UIAlertAction * action) {
+    }];
+
+    [alertController addAction:cancelAction];
+    [alertController addAction:okAction];
+
+    [self presentViewController:alertController animated: YES completion: nil];
+}
+
 - (void)showImagePicker:(UIImagePickerControllerSourceType)source {
     UIImagePickerController *picker = [[UIImagePickerController alloc] init];
     picker.modalPresentationStyle = UIModalPresentationCurrentContext;
@@ -1041,6 +1098,10 @@ heightForCellBottomLabelAtIndexPath:(NSIndexPath *)indexPath {
 
 - (void)sendImage:(UIImage *)image filename:(NSString *)filename {
     [IQChannels sendImage:image filename:filename];
+}
+
+- (void)sendData:(NSData *)data filename:(NSString *)filename {
+    [IQChannels sendData:data filename:filename];
 }
 
 - (void)retryUpload:(int64_t)localId {

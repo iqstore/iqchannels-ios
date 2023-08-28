@@ -19,6 +19,7 @@
 #import "IQImagePreviewController.h"
 #import "IQImagePreviewViewController.h"
 #import "SDWebImageManager.h"
+#import "MessagesTypingIndicatorFooterView.h"
 
 
 @interface IQChannelMessagesViewController () <IQChannelsStateListener, IQChannelsMessagesListener,
@@ -34,6 +35,8 @@
 
 @implementation IQChannelMessagesViewController {
     IQClient *_client;
+    IQUser *_typingUser;
+    NSTimer *typingTimer;
     BOOL _visible;
 
     IQChannelsState _state;
@@ -92,6 +95,9 @@
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissKeyboard:)];
     tap.delegate = self;
     [self.collectionView addGestureRecognizer:tap];
+    [self.collectionView registerNib:[MessagesTypingIndicatorFooterView nib]
+          forSupplementaryViewOfKind:UICollectionElementKindSectionFooter
+                 withReuseIdentifier:[MessagesTypingIndicatorFooterView footerReuseIdentifier]];
 }
 
 - (void)setupLoginIndicator {
@@ -157,6 +163,30 @@
     _refreshControl = [[UIRefreshControl alloc] init];
     [_refreshControl addTarget:self action:@selector(refresh:) forControlEvents:UIControlEventValueChanged];
     [self.collectionView addSubview:_refreshControl];
+}
+
+- (void)setupTypingTimer {
+    typingTimer = [NSTimer scheduledTimerWithTimeInterval:3
+                                                   target:self
+                                                 selector:@selector(onTick)
+                                                 userInfo:nil
+                                                  repeats:NO];
+    if (typingTimer == 0)
+    {
+        [typingTimer invalidate];
+    }
+}
+
+-(void)onTick {
+    self.showTypingIndicator = NO;
+    self->_typingUser = nil;
+    [typingTimer invalidate];
+}
+
+- (void)extendByTime:(NSInteger)seconds
+{
+    NSDate *newFireDate = [[typingTimer fireDate] dateByAddingTimeInterval:seconds];
+    [typingTimer setFireDate:newFireDate];
 }
 
 - (NSString *)senderId {
@@ -395,6 +425,60 @@
         }
         [self.collectionView reloadItemsAtIndexPaths:paths];
     }
+}
+
+#pragma mark - Typing indicator
+
+- (void)iq_messageTyping:(IQUser *)user; {
+    if (self.showTypingIndicator == NO) {
+        [self setupTypingTimer];
+    } else {
+        [self extendByTime:2];
+    }
+
+    _typingUser = user;
+    self.showTypingIndicator = YES;
+    [self scrollToBottomAnimated:YES];
+}
+
+- (UICollectionReusableView *)collectionView:(JSQMessagesCollectionView *)collectionView
+           viewForSupplementaryElementOfKind:(NSString *)kind
+                                 atIndexPath:(NSIndexPath *)indexPath
+{
+    if (self.showTypingIndicator && [kind isEqualToString:UICollectionElementKindSectionFooter]) {
+        return [self dequeueTypingIndicatorFooterViewForIndexPath:indexPath];
+    }
+    else if (self.showLoadEarlierMessagesHeader && [kind isEqualToString:UICollectionElementKindSectionHeader]) {
+        return [collectionView dequeueLoadEarlierMessagesViewHeaderForIndexPath:indexPath];
+    }
+
+    return nil;
+}
+
+- (MessagesTypingIndicatorFooterView *)dequeueTypingIndicatorFooterViewForIndexPath:(NSIndexPath *)indexPath
+{
+    MessagesTypingIndicatorFooterView *footerView = [self.collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionFooter
+                                                                                            withReuseIdentifier:[MessagesTypingIndicatorFooterView footerReuseIdentifier]
+                                                                                                   forIndexPath:indexPath];
+
+    NSString *displayName = _typingUser.DisplayName;
+    NSString *action = [NSBundle jsq_localizedStringForKey:@"печатает..."];
+    NSString *text = [NSString stringWithFormat:@"%@ %@", displayName, action];
+    [footerView configureWithText:text
+                        textColor:[UIColor blackColor]
+               messageBubbleColor:self.collectionView.typingIndicatorMessageBubbleColor
+                forCollectionView:self.collectionView];
+    return footerView;
+}
+
+- (CGSize)collectionView:(UICollectionView *)collectionView
+                  layout:(JSQMessagesCollectionViewFlowLayout *)collectionViewLayout referenceSizeForFooterInSection:(NSInteger)section
+{
+    if (!self.showTypingIndicator) {
+        return CGSizeZero;
+    }
+
+    return CGSizeMake([collectionViewLayout itemWidth], kMessagesTypingIndicatorFooterViewHeight);
 }
 
 - (NSInteger)getMessageIndex:(IQChatMessage *)message {

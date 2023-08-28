@@ -34,6 +34,7 @@
 @property(nonatomic, copy, nullable) NSNumber *ClientId;
 @property(nonatomic, copy, nullable) NSNumber *UserId;
 @property(nonatomic) int64_t CreatedAt;
+@property(nonatomic, copy, nullable) NSArray<IQChatMessage *> *Messages;
 
 // Relations
 @property(nonatomic, nullable) IQClient *Client;

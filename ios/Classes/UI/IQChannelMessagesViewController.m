@@ -481,6 +481,31 @@
     return CGSizeMake([collectionViewLayout itemWidth], kMessagesTypingIndicatorFooterViewHeight);
 }
 
+- (void)iq_messagesRemoved:(NSArray<IQChatMessage *> *)messages {
+    if (!_messagesSub) {
+        return;
+    }
+
+    NSMutableArray<IQChatMessage *> *remoteMessages = [[NSMutableArray alloc] initWithArray:messages];
+
+    NSInteger index = 0;
+    NSMutableArray *paths = [[NSMutableArray alloc] init];
+    NSMutableIndexSet *indexSet = [NSMutableIndexSet indexSet];
+    for(IQChatMessage *localMessage in _messages) {
+        for(IQChatMessage *remoteMessage in remoteMessages) {
+            if (localMessage.Id == remoteMessage.Id) {
+                [paths addObject:[NSIndexPath indexPathForItem:index inSection:0]];
+                [indexSet addIndex:index];
+            }
+        }
+
+        index++;
+    }
+
+    [_messages removeObjectsAtIndexes:indexSet];
+    [self.collectionView deleteItemsAtIndexPaths:paths];
+}
+
 - (NSInteger)getMessageIndex:(IQChatMessage *)message {
     NSInteger index = [self getMessageIndexById:message.Id];
     if (index >= 0) {

@@ -1,9 +1,9 @@
 PODS:
-  - IQChannels (1.5.2):
+  - IQChannels (1.5.3):
     - JSQMessagesViewController
     - SDWebImage (~> 5.10)
     - TRVSEventSource (= 0.0.8)
-  - JSQMessagesViewController (7.3.5.2):
+  - JSQMessagesViewController (7.3.5.3):
     - JSQSystemSoundPlayer (~> 2.0.1)
   - JSQSystemSoundPlayer (2.0.1)
   - SDWebImage (5.16.0):
@@ -13,7 +13,7 @@ PODS:
 
 DEPENDENCIES:
   - IQChannels (from `../`)
-  - JSQMessagesViewController (from `https://github.com/iqstore/JSQMessagesViewController.git`, tag `7.3.5.2`)
+  - JSQMessagesViewController (from `https://github.com/iqstore/JSQMessagesViewController.git`, tag `7.3.8`)
 
 SPEC REPOS:
   trunk:
@@ -26,20 +26,20 @@ EXTERNAL SOURCES:
     :path: "../"
   JSQMessagesViewController:
     :git: https://github.com/iqstore/JSQMessagesViewController.git
-    :tag: 7.3.5.2
+    :tag: 7.3.8
 
 CHECKOUT OPTIONS:
   JSQMessagesViewController:
     :git: https://github.com/iqstore/JSQMessagesViewController.git
-    :tag: 7.3.5.2
+    :tag: 7.3.8
 
 SPEC CHECKSUMS:
-  IQChannels: f19601f6988b92ff3ecd70e3748f43ea73de14d0
-  JSQMessagesViewController: 6c4ef50b0d0832b6e7d97ee4a0ba69342749e9e4
+  IQChannels: 95eeea91c05809c460d291415e1ea0a0b1cf3d4e
+  JSQMessagesViewController: ccddec7ca3e506aa15e3a3244c7658e2ea506877
   JSQSystemSoundPlayer: c5850e77a4363ffd374cd851154b9af93264ed8d
   SDWebImage: 2aea163b50bfcb569a2726b6a754c54a4506fcf6
   TRVSEventSource: 19fb940e0351ceb97125d46fd40cd55e339568d8
 
-PODFILE CHECKSUM: a23275fd843acf772a77602c9b7aa3dd99b96c5e
+PODFILE CHECKSUM: 07356a563ba809d55ffdfe4b0b3428c2f865a48c
 
 COCOAPODS: 1.12.1

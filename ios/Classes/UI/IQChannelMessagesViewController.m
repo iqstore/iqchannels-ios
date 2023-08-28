@@ -621,7 +621,7 @@
 
     IQChatMessage *message = _messages[(NSUInteger) indexPath.item];
     if (message.My) {
-        cell.textView.textColor = [UIColor whiteColor];
+        cell.textView.textColor = [UIColor blackColor];
         UIImage *image = cell.messageBubbleImageView.image;
         cell.messageBubbleImageView.image = [image imageWithRenderingMode: UIImageRenderingModeAlwaysTemplate];
         [cell.messageBubbleImageView setTintColor: [UIColor colorWithHex: 0xDCF5C0]];

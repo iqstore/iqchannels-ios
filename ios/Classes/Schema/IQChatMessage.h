@@ -10,6 +10,7 @@
 #import "IQJSONDecodable.h"
 #import "IQActorType.h"
 #import "IQChatPayloadType.h"
+#import "IQSingleChoice.h"
 
 
 @class IQUser;
@@ -18,6 +19,7 @@
 @class IQChatEvent;
 @class IQFile;
 @class IQRating;
+@class IQSingleChoice;
 
 
 @interface IQChatMessage : NSObject <IQJSONDecodable, JSQMessageData>
@@ -44,6 +46,8 @@
 // Flags
 @property(nonatomic) BOOL Received;
 @property(nonatomic) BOOL Read;
+@property(nonatomic) BOOL DisableFreeText;
+@property(nonatomic) BOOL IsDropDown;
 
 // Timestamps
 @property(nonatomic) int64_t CreatedAt;
@@ -80,6 +84,9 @@
 @property(nonatomic) BOOL Uploaded;
 @property(nonatomic) BOOL Uploading;
 @property(nonatomic, nullable) NSError *UploadError;
+
+// Single choices
+@property(nonatomic, nullable) NSArray<IQSingleChoice *> *SingleChoices;
 
 + (NSArray<IQChatMessage *> *_Nonnull)fromJSONArray:(id _Nullable)array;
 

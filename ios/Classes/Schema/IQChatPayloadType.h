@@ -11,3 +11,4 @@ extern IQChatPayloadType const IQChatPayloadText;
 extern IQChatPayloadType const IQChatPayloadFile;
 extern IQChatPayloadType const IQChatPayloadRating;
 extern IQChatPayloadType const IQChatPayloadNotice;
+extern IQChatPayloadType const IQChatPayloadSingleChoice;

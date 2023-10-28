@@ -52,12 +52,17 @@
 
     message.Received = [IQJSON boolFromObject:object key:@"Received"];
     message.Read = [IQJSON boolFromObject:object key:@"Read"];
+    message.DisableFreeText = [IQJSON boolFromObject:object key:@"DisableFreeText"];
+    message.IsDropDown = [IQJSON boolFromObject:object key:@"IsDropDown"];
 
     message.CreatedAt = [IQJSON int64FromObject:object key:@"CreatedAt"];
     message.ReceivedAt = [IQJSON numberFromObject:object key:@"ReceivedAt"];
     message.ReadAt = [IQJSON numberFromObject:object key:@"ReadAt"];
 
     message.My = [IQJSON boolFromObject:object key:@"My"];
+
+    message.SingleChoices = [IQJSON arrayFromObject:object key:@"SingleChoices"];
+
     return message;
 }
 

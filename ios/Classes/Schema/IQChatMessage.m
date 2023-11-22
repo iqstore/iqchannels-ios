@@ -49,6 +49,7 @@
     message.FileId = [IQJSON stringFromObject:object key:@"FileId"];
     message.RatingId = [IQJSON numberFromObject:object key:@"RatingId"];
     message.NoticeId = [IQJSON numberFromObject:object key:@"NoticeId"];
+    message.BotpressPayload = [IQJSON stringFromObject:object key:@"BotpressPayload"];
 
     message.Received = [IQJSON boolFromObject:object key:@"Received"];
     message.Read = [IQJSON boolFromObject:object key:@"Read"];
@@ -61,7 +62,7 @@
 
     message.My = [IQJSON boolFromObject:object key:@"My"];
 
-    message.SingleChoices = [IQJSON arrayFromObject:object key:@"SingleChoices"];
+    message.SingleChoices = [IQSingleChoice fromJSONArray:[IQJSON arrayFromObject:object key:@"SingleChoices"]];
 
     return message;
 }

@@ -20,16 +20,18 @@
 #import "IQImagePreviewViewController.h"
 #import "SDWebImageManager.h"
 #import "MessagesTypingIndicatorFooterView.h"
+#import "IQSingleChoicesView.h"
 
 
 @interface IQChannelMessagesViewController () <IQChannelsStateListener, IQChannelsMessagesListener,
         IQChannelsMoreMessagesListener, UIActionSheetDelegate, UINavigationControllerDelegate,
-        UIImagePickerControllerDelegate, UIGestureRecognizerDelegate, UIDocumentPickerDelegate>
+        UIImagePickerControllerDelegate, UIGestureRecognizerDelegate, UIDocumentPickerDelegate, IQSingleChoicesViewDelegate>
 @property(nonatomic) UIRefreshControl *refreshControl;
 @property(nonatomic) IQActivityIndicator *loginIndicator;
 @property(nonatomic) IQActivityIndicator *messagesIndicator;
 @property(nonatomic) JSQMessagesBubbleImage *incomingBubble;
 @property(nonatomic) JSQMessagesBubbleImage *outgoingBubble;
+@property(nonatomic) IQSingleChoicesView *singleChoicesView;
 @end
 
 
@@ -69,6 +71,7 @@
     [self setupBubbles];
     [self setupAvatars];
     [self setupRefreshControl];
+    [self setupSingleChoiceView];
 }
 
 - (void)setupNavbar {
@@ -177,7 +180,70 @@
     }
 }
 
--(void)onTick {
+- (void)setupSingleChoiceView {
+    self.singleChoicesView = [[IQSingleChoicesView alloc] init];
+    self.singleChoicesView.delegate = self;
+    [self.inputToolbar.contentView.accessoryContainerView addSubview: self.singleChoicesView];
+    [self setLayoutConstraints];
+}
+
+- (void) setLayoutConstraints {
+    [self.inputToolbar.contentView.accessoryContainerView setTranslatesAutoresizingMaskIntoConstraints:NO];
+    [self.singleChoicesView setTranslatesAutoresizingMaskIntoConstraints:NO];
+    NSLayoutConstraint *leading = [
+        NSLayoutConstraint
+        constraintWithItem: self.singleChoicesView
+        attribute: NSLayoutAttributeLeading
+        relatedBy: NSLayoutRelationEqual
+        toItem: self.inputToolbar.contentView.accessoryContainerView
+        attribute: NSLayoutAttributeLeading
+        multiplier: 1
+        constant: 0
+    ];
+    NSLayoutConstraint *top = [
+        NSLayoutConstraint
+        constraintWithItem: self.singleChoicesView
+        attribute: NSLayoutAttributeTop
+        relatedBy: NSLayoutRelationEqual
+        toItem: self.inputToolbar.contentView.accessoryContainerView
+        attribute: NSLayoutAttributeTop
+        multiplier: 1
+        constant: 0
+    ];
+    NSLayoutConstraint *trailing = [
+        NSLayoutConstraint
+        constraintWithItem: self.singleChoicesView
+        attribute: NSLayoutAttributeTrailing
+        relatedBy: NSLayoutRelationEqual
+        toItem: self.inputToolbar.contentView.accessoryContainerView
+        attribute: NSLayoutAttributeTrailing
+        multiplier: 1
+        constant: 0
+    ];
+    NSLayoutConstraint *bottom = [
+        NSLayoutConstraint
+        constraintWithItem: self.singleChoicesView
+        attribute: NSLayoutAttributeBottom
+        relatedBy: NSLayoutRelationEqual
+        toItem: self.inputToolbar.contentView.accessoryContainerView
+        attribute: NSLayoutAttributeBottom
+        multiplier: 1
+        constant: 0
+    ];
+
+    [self.inputToolbar.contentView.accessoryContainerView addConstraints:@[leading, top, trailing, bottom]];
+}
+
+- (void)singleChoicesView:(IQSingleChoicesView *) view didChangeHeight:(CGFloat)height {
+    [self jsq_setToolbarBottomLayoutGuideConstant: 0];
+}
+
+- (void)singleChoicesView:(IQSingleChoicesView *)view didSelectOption:(IQSingleChoice *)singleChoice {
+    [IQChannels sendSingleChoice: singleChoice];
+    [self.singleChoicesView clearSingleChoices];
+}
+
+- (void)onTick {
     self.showTypingIndicator = NO;
     self->_typingUser = nil;
     [typingTimer invalidate];
@@ -388,6 +454,9 @@
         self.collectionView.contentOffset = CGPointMake(self.collectionView.contentOffset.x, offset);
     }
 
+    [self inputToolbarEnableInteraction];
+    [self setupSingleChoices];
+
     [_refreshControl endRefreshing];
 }
 
@@ -425,6 +494,8 @@
         }
         [self.collectionView reloadItemsAtIndexPaths:paths];
     }
+
+    [self setupSingleChoices];
 }
 
 #pragma mark - Typing indicator
@@ -569,6 +640,24 @@
         
         [[UIApplication sharedApplication] openURL:url options:nil completionHandler:nil];
     }];
+}
+
+- (void)setupSingleChoices {
+    NSArray<IQChatMessage *> *reversedMessages = [[_messages reverseObjectEnumerator] allObjects];
+    for (IQChatMessage* message in reversedMessages) {
+        if ([message.Payload isEqual: IQChatPayloadSingleChoice]) {
+            if (message.IsDropDown == NO) {
+                NSArray<IQSingleChoice *> *singleChoices = message.SingleChoices;
+                if (message.SingleChoices.count > 0) {
+                    [self.singleChoicesView setSingleChoices: [singleChoices mutableCopy]];
+                }
+                if (message.DisableFreeText == YES) {
+                    [self inputToolbarDisableInteraction];
+                }
+                break;
+            }
+        }
+    }
 }
 
 #pragma mark More messages

@@ -42,6 +42,7 @@
 @property(nonatomic, copy, nullable) NSString *FileId;
 @property(nonatomic, copy, nullable) NSNumber *RatingId;
 @property(nonatomic, copy, nullable) NSNumber *NoticeId;
+@property(nonatomic, copy, nullable) NSString *BotpressPayload;
 
 // Flags
 @property(nonatomic) BOOL Received;
@@ -86,7 +87,7 @@
 @property(nonatomic, nullable) NSError *UploadError;
 
 // Single choices
-@property(nonatomic, nullable) NSArray<IQSingleChoice *> *SingleChoices;
+@property(nonatomic, copy, nullable) NSArray<IQSingleChoice *> *SingleChoices;
 
 + (NSArray<IQChatMessage *> *_Nonnull)fromJSONArray:(id _Nullable)array;
 

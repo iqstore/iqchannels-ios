@@ -664,6 +664,7 @@
                 NSArray<IQSingleChoice *> *singleChoices = message.SingleChoices;
                 if (message.SingleChoices.count > 0) {
                     [self.singleChoicesView setSingleChoices: [singleChoices mutableCopy]];
+                    [self.singleChoicesView.collectionView setTransform: CGAffineTransformMakeScale(-1, 1)];
                 }
                 if (message.DisableFreeText == YES) {
                     [self inputToolbarDisableInteraction];

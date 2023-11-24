@@ -1,17 +1,17 @@
 //
-//  LeftAlignedCollectionViewFlowLayout.m
+//  RightAlignedCollectionViewFlowLayout.m
 //  IQChannels
 //
 //  Created by Zhalgas Baibatyr on 05.11.2023.
 //
 
-#import "LeftAlignedCollectionViewFlowLayout.h"
+#import "RightAlignedCollectionViewFlowLayout.h"
 
-@interface LeftAlignedCollectionViewFlowLayout ()
+@interface RightAlignedCollectionViewFlowLayout ()
 
 @end
 
-@implementation LeftAlignedCollectionViewFlowLayout
+@implementation RightAlignedCollectionViewFlowLayout
 
 - (instancetype)init
 {

@@ -6,7 +6,7 @@
 //
 
 #import "IQSingleChoicesView.h"
-#import "LeftAlignedCollectionViewFlowLayout.h"
+#import "RightAlignedCollectionViewFlowLayout.h"
 #import "IQSingleChoiceCell.h"
 #import <IQChannels/IQSingleChoice.h>
 
@@ -28,7 +28,7 @@
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame: frame];
     if (self) {
-        LeftAlignedCollectionViewFlowLayout *collectionViewLayout = [[LeftAlignedCollectionViewFlowLayout alloc] init];
+        RightAlignedCollectionViewFlowLayout *collectionViewLayout = [[RightAlignedCollectionViewFlowLayout alloc] init];
         self.collectionView = [
             [UICollectionView alloc]
             initWithFrame: CGRectZero

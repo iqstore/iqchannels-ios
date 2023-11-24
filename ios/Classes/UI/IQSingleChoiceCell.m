@@ -123,6 +123,7 @@
     self.label.textColor = color;
     self.label.font = [UIFont systemFontOfSize: 12];
     self.label.textAlignment = NSTextAlignmentCenter;
+    [self.contentView setTransform: CGAffineTransformMakeScale(-1, 1)];
 }
 
 + (NSString *)cellReuseIdentifier { return NSStringFromClass([self class]); }

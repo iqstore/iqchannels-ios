@@ -21,11 +21,21 @@
 #import "SDWebImageManager.h"
 #import "MessagesTypingIndicatorFooterView.h"
 #import "IQSingleChoicesView.h"
+#import "IQStackedSingleChoicesCell.h"
 
 
-@interface IQChannelMessagesViewController () <IQChannelsStateListener, IQChannelsMessagesListener,
-        IQChannelsMoreMessagesListener, UIActionSheetDelegate, UINavigationControllerDelegate,
-        UIImagePickerControllerDelegate, UIGestureRecognizerDelegate, UIDocumentPickerDelegate, IQSingleChoicesViewDelegate>
+@interface IQChannelMessagesViewController () <
+    IQChannelsStateListener,
+    IQChannelsMessagesListener,
+    IQChannelsMoreMessagesListener,
+    UIActionSheetDelegate,
+    UINavigationControllerDelegate,
+    UIImagePickerControllerDelegate,
+    UIGestureRecognizerDelegate,
+    UIDocumentPickerDelegate,
+    IQSingleChoicesViewDelegate,
+    IQStackedSingleChoicesCellDelegate
+>
 @property(nonatomic) UIRefreshControl *refreshControl;
 @property(nonatomic) IQActivityIndicator *loginIndicator;
 @property(nonatomic) IQActivityIndicator *messagesIndicator;
@@ -101,6 +111,10 @@
     [self.collectionView registerNib:[MessagesTypingIndicatorFooterView nib]
           forSupplementaryViewOfKind:UICollectionElementKindSectionFooter
                  withReuseIdentifier:[MessagesTypingIndicatorFooterView footerReuseIdentifier]];
+    [self.collectionView
+        registerNib: [IQStackedSingleChoicesCell nib]
+        forCellWithReuseIdentifier: [IQStackedSingleChoicesCell cellReuseIdentifier]
+    ];
 }
 
 - (void)setupLoginIndicator {
@@ -646,7 +660,7 @@
     NSArray<IQChatMessage *> *reversedMessages = [[_messages reverseObjectEnumerator] allObjects];
     for (IQChatMessage* message in reversedMessages) {
         if ([message.Payload isEqual: IQChatPayloadSingleChoice]) {
-            if (message.IsDropDown == NO) {
+            if (message.IsDropDown == YES) {
                 NSArray<IQSingleChoice *> *singleChoices = message.SingleChoices;
                 if (message.SingleChoices.count > 0) {
                     [self.singleChoicesView setSingleChoices: [singleChoices mutableCopy]];
@@ -816,9 +830,15 @@
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView
                   cellForItemAtIndexPath:(NSIndexPath *)indexPath {
-    JSQMessagesCollectionViewCell *cell = [super collectionView:collectionView cellForItemAtIndexPath:indexPath];
-
+    NSString *originalCellIdentifier = self.incomingCellIdentifier;
     IQChatMessage *message = _messages[(NSUInteger) indexPath.item];
+    if ([message.Payload isEqual:IQChatPayloadSingleChoice] && message.IsDropDown != YES) {
+        self.incomingCellIdentifier = [IQStackedSingleChoicesCell cellReuseIdentifier];
+    }
+
+    JSQMessagesCollectionViewCell *cell = [super collectionView:collectionView cellForItemAtIndexPath:indexPath];
+    self.incomingCellIdentifier = originalCellIdentifier;
+
     if (message.My) {
         cell.textView.textColor = [UIColor blackColor];
         UIImage *image = cell.messageBubbleImageView.image;
@@ -863,6 +883,12 @@
             incomingCell.fileImageViewLeadingConstraint.constant = 18;
             incomingCell.fileImageViewTrailingConstraint.constant = -6;
         }
+    }
+
+    if ([message.Payload isEqual:IQChatPayloadSingleChoice] && message.IsDropDown != YES) {
+        IQStackedSingleChoicesCell *incomingCell = (IQStackedSingleChoicesCell *)cell;
+        [incomingCell setSingleChoices: [message.SingleChoices mutableCopy]];
+        incomingCell.stackedSingleChoicesDelegate = self;
     }
 
     return cell;
@@ -929,6 +955,17 @@
     }
 
     return kJSQMessagesCollectionViewCellLabelHeightDefault;
+}
+
+- (CGSize)collectionView:(JSQMessagesCollectionView *)collectionView
+                  layout:(JSQMessagesCollectionViewFlowLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    CGSize size = [collectionViewLayout sizeForItemAtIndexPath:indexPath];
+    IQChatMessage *message = _messages[(NSUInteger) indexPath.item];
+    if ([message.Payload isEqual:IQChatPayloadSingleChoice] && message.IsDropDown != YES) {
+        return CGSizeMake(size.width, size.height + message.SingleChoices.count * 35 - 3 + 6);
+    }
+    return size;
 }
 
 
@@ -1325,4 +1362,11 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls {
     transition.subtype = kCATransitionFromLeft;
     return transition;
 }
+
+#pragma mark IQStackedSingleChoicesCellDelegate
+
+- (void)stackedSingleChoicesCell:(IQStackedSingleChoicesCell *)cell didSelectOption:(IQSingleChoice *)singleChoice {
+    [IQChannels sendSingleChoice: singleChoice];
+}
+
 @end

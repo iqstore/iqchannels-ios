@@ -21,8 +21,8 @@
     NSMutableArray<IQSingleChoice *> *_singleChoices;
 }
 
-- (instancetype)initWithFrame:(CGRect)frame {
-    self = [super initWithFrame: frame];
+- (void)awakeFromNib {
+    [super awakeFromNib];
     if (self) {
         self.stackView = [[UIStackView alloc] init];
         [self addSubview: self.stackView];
@@ -30,8 +30,6 @@
         [self setStyleProperties];
         self.buttonsArray = [@[] mutableCopy];
     }
-
-    return self;
 }
 
 - (void)setLayoutConstraints {

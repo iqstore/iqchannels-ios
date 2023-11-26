@@ -6,26 +6,25 @@
 //
 
 #import "IQSingleChoicesCell.h"
+#import "JSQMessagesCollectionViewLayoutAttributes.h"
 #import "IQSingleChoicesView.h"
 #import <IQChannels/IQSingleChoice.h>
 
 @interface IQSingleChoicesCell()
 
-@property (nonatomic, strong) IQSingleChoicesView *view;
+@property (weak, nonatomic) IBOutlet IQSingleChoicesView *view;
 
 @end
 
 @implementation IQSingleChoicesCell
 
-- (instancetype)initWithFrame:(CGRect)frame
-{
-    self = [super initWithFrame:frame];
+- (void)awakeFromNib {
+    [super awakeFromNib];
     if (self) {
-        self.view = [[IQSingleChoicesView alloc] init];
-        [self.contentView addSubview: self.view];
-        [self setLayoutConstraints];
+        self.messageBubbleTopLabel.textAlignment = NSTextAlignmentLeft;
+        self.cellBottomLabel.textAlignment = NSTextAlignmentLeft;
+
     }
-    return self;
 }
 
 - (void)prepareForReuse {
@@ -34,46 +33,13 @@
     self.view.delegate = nil;
 }
 
-- (void)setLayoutConstraints {
-    [self.view setTranslatesAutoresizingMaskIntoConstraints: NO];
-    NSLayoutConstraint *viewLeading = [NSLayoutConstraint
-        constraintWithItem: self.view
-        attribute: NSLayoutAttributeLeading
-        relatedBy: NSLayoutRelationEqual
-        toItem: self.contentView
-        attribute: NSLayoutAttributeLeading
-        multiplier: 1
-        constant: 2
-    ];
-    NSLayoutConstraint *viewTop = [NSLayoutConstraint
-        constraintWithItem: self.view
-        attribute: NSLayoutAttributeTop
-        relatedBy: NSLayoutRelationEqual
-        toItem: self.contentView
-        attribute: NSLayoutAttributeTop
-        multiplier: 1
-        constant: 0
-    ];
-    NSLayoutConstraint *viewTrailing = [NSLayoutConstraint
-        constraintWithItem: self.view
-        attribute: NSLayoutAttributeTrailing
-        relatedBy: NSLayoutRelationEqual
-        toItem: self.contentView
-        attribute: NSLayoutAttributeTrailing
-        multiplier: 1
-        constant: 0
-    ];
-    NSLayoutConstraint *viewBottom = [NSLayoutConstraint
-        constraintWithItem: self.view
-        attribute: NSLayoutAttributeBottom
-        relatedBy: NSLayoutRelationEqual
-        toItem: self.contentView
-        attribute: NSLayoutAttributeBottom
-        multiplier: 1
-        constant: 0
-    ];
+- (void)applyLayoutAttributes:(UICollectionViewLayoutAttributes *)layoutAttributes
+{
+    [super applyLayoutAttributes:layoutAttributes];
 
-    [self addConstraints: @[viewLeading, viewTop, viewTrailing, viewBottom]];
+    JSQMessagesCollectionViewLayoutAttributes *customAttributes = (JSQMessagesCollectionViewLayoutAttributes *)layoutAttributes;
+
+    self.avatarViewSize = customAttributes.incomingAvatarViewSize;
 }
 
 + (NSString *)cellReuseIdentifier { return NSStringFromClass([self class]); }

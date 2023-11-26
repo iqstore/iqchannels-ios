@@ -22,6 +22,9 @@
     if (self.FileId) {
         d[@"FileId"] = _FileId;
     }
+    if (self.BotpressPayload) {
+        d[@"BotpressPayload"] = _BotpressPayload;
+    }
     return d;
 }
 
@@ -34,6 +37,7 @@
     _Payload = message.Payload;
     _Text = message.Text ? message.Text : @"";
     _FileId = message.FileId;
+    _BotpressPayload = message.BotpressPayload;
     return self;
 }
 @end

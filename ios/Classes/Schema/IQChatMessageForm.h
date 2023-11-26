@@ -17,6 +17,7 @@
 @property(nonatomic, copy, nullable) IQChatPayloadType Payload;
 @property(nonatomic, copy, nullable) NSString *Text;
 @property(nonatomic, copy, nullable) NSString *FileId;
+@property(nonatomic, copy, nullable) NSString *BotpressPayload;
 
 - (instancetype _Nonnull)initWithMessage:(IQChatMessage *_Nonnull)message;
 @end

@@ -111,11 +111,11 @@
           forSupplementaryViewOfKind:UICollectionElementKindSectionFooter
                  withReuseIdentifier:[MessagesTypingIndicatorFooterView footerReuseIdentifier]];
     [self.collectionView
-        registerNib: [IQStackedSingleChoicesCell nib]
-        forCellWithReuseIdentifier: [IQStackedSingleChoicesCell cellReuseIdentifier]
+        registerNib:[IQStackedSingleChoicesCell nib]
+        forCellWithReuseIdentifier:[IQStackedSingleChoicesCell cellReuseIdentifier]
     ];
     [self.collectionView
-        registerClass:[IQSingleChoicesCell self]
+        registerNib:[IQSingleChoicesCell nib]
         forCellWithReuseIdentifier:[IQSingleChoicesCell cellReuseIdentifier]
     ];
     [self.collectionView
@@ -759,28 +759,9 @@
                   cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     NSString *originalCellIdentifier = self.incomingCellIdentifier;
     IQChatMessage *message = _messages[(NSUInteger) indexPath.item];
-
     if ([message.Payload isEqual:IQChatPayloadSingleChoice]) {
         if (message.IsDropDown == YES) {
-            if (!(_messages.count - 1 == indexPath.item && message.SingleChoices.count > 0)) {
-                return [collectionView
-                    dequeueReusableCellWithReuseIdentifier: [UICollectionViewCell description]
-                    forIndexPath:indexPath
-                ];
-            }
-
-            IQSingleChoicesCell *cell = [collectionView
-                dequeueReusableCellWithReuseIdentifier: [IQSingleChoicesCell cellReuseIdentifier]
-                forIndexPath:indexPath
-            ];
-            [cell setSingleChoicesDelegate: self];
-            [cell setSingleChoices: [message.SingleChoices mutableCopy]];
-
-            if (message.DisableFreeText == YES) {
-                [self inputToolbarDisableInteraction];
-            }
-
-            return cell;
+            self.incomingCellIdentifier = [IQSingleChoicesCell cellReuseIdentifier];
         } else {
             self.incomingCellIdentifier = [IQStackedSingleChoicesCell cellReuseIdentifier];
         }
@@ -788,6 +769,7 @@
 
     JSQMessagesCollectionViewCell *cell = [super collectionView:collectionView cellForItemAtIndexPath:indexPath];
     self.incomingCellIdentifier = originalCellIdentifier;
+    [self inputToolbarEnableInteraction];
 
     if (message.My) {
         cell.textView.textColor = [UIColor blackColor];
@@ -835,10 +817,30 @@
         }
     }
 
-    if ([message.Payload isEqual:IQChatPayloadSingleChoice] && message.IsDropDown != YES) {
-        IQStackedSingleChoicesCell *incomingCell = (IQStackedSingleChoicesCell *)cell;
-        [incomingCell setSingleChoices: [message.SingleChoices mutableCopy]];
-        incomingCell.stackedSingleChoicesDelegate = self;
+    if ([message.Payload isEqual:IQChatPayloadSingleChoice]) {
+        if (message.IsDropDown == YES) {
+            if (!(_messages.count - 1 == indexPath.item && message.SingleChoices.count > 0)) {
+                return [collectionView
+                    dequeueReusableCellWithReuseIdentifier: [UICollectionViewCell description]
+                    forIndexPath:indexPath
+                ];
+            }
+
+            IQSingleChoicesCell *incomingCell = (IQSingleChoicesCell *)cell;
+            [incomingCell setSingleChoicesDelegate: self];
+            [incomingCell setSingleChoices: [message.SingleChoices mutableCopy]];
+
+            if (message.DisableFreeText == YES) {
+                [self inputToolbarDisableInteraction];
+            } else {
+                [self inputToolbarEnableInteraction];
+            }
+
+        } else {
+            IQStackedSingleChoicesCell *incomingCell = (IQStackedSingleChoicesCell *)cell;
+            [incomingCell setSingleChoices: [message.SingleChoices mutableCopy]];
+            incomingCell.stackedSingleChoicesDelegate = self;
+        }
     }
 
     return cell;
@@ -943,7 +945,7 @@
                 index += 1;
             } while (choiceIndex < choices.count);
 
-            return CGSizeMake(width, height * index + 4 * (index - 1));
+            return CGSizeMake(width, size.height + height * index + 4 * (index - 1));
         } else {
             return CGSizeMake(size.width, size.height + message.SingleChoices.count * 35 - 3 + 6);
         }

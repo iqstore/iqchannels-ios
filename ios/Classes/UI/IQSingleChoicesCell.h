@@ -6,12 +6,13 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "JSQMessagesCollectionViewCell.h"
 #import "IQSingleChoicesView.h"
 #import <IQChannels/IQSingleChoice.h>
 
 @class IQSingleChoicesCell;
 
-@interface IQSingleChoicesCell : UICollectionViewCell
+@interface IQSingleChoicesCell : JSQMessagesCollectionViewCell
 
 - (void)setSingleChoices:(NSMutableArray<IQSingleChoice *> *)singleChoices;
 - (void)setSingleChoicesDelegate:(id<IQSingleChoicesViewDelegate>)singleChoicesDelegate;

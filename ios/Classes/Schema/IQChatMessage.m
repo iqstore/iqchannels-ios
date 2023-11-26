@@ -163,6 +163,7 @@
     _Text = message.text;
     _FileId = message.FileId;
     _NoticeId = message.NoticeId;
+    _BotpressPayload = message.BotpressPayload;
 
     // Relations
     _Client = message.Client;

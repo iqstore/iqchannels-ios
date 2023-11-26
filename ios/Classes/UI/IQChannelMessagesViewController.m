@@ -22,6 +22,7 @@
 #import "MessagesTypingIndicatorFooterView.h"
 #import "IQSingleChoicesView.h"
 #import "IQStackedSingleChoicesCell.h"
+#import "IQSingleChoicesCell.h"
 
 
 @interface IQChannelMessagesViewController () <
@@ -41,7 +42,6 @@
 @property(nonatomic) IQActivityIndicator *messagesIndicator;
 @property(nonatomic) JSQMessagesBubbleImage *incomingBubble;
 @property(nonatomic) JSQMessagesBubbleImage *outgoingBubble;
-@property(nonatomic) IQSingleChoicesView *singleChoicesView;
 @end
 
 
@@ -81,7 +81,6 @@
     [self setupBubbles];
     [self setupAvatars];
     [self setupRefreshControl];
-    [self setupSingleChoiceView];
 }
 
 - (void)setupNavbar {
@@ -114,6 +113,14 @@
     [self.collectionView
         registerNib: [IQStackedSingleChoicesCell nib]
         forCellWithReuseIdentifier: [IQStackedSingleChoicesCell cellReuseIdentifier]
+    ];
+    [self.collectionView
+        registerClass:[IQSingleChoicesCell self]
+        forCellWithReuseIdentifier:[IQSingleChoicesCell cellReuseIdentifier]
+    ];
+    [self.collectionView
+        registerClass:[UICollectionViewCell self]
+        forCellWithReuseIdentifier:[UICollectionViewCell description]
     ];
 }
 
@@ -194,67 +201,8 @@
     }
 }
 
-- (void)setupSingleChoiceView {
-    self.singleChoicesView = [[IQSingleChoicesView alloc] init];
-    self.singleChoicesView.delegate = self;
-    [self.inputToolbar.contentView.accessoryContainerView addSubview: self.singleChoicesView];
-    [self setLayoutConstraints];
-}
-
-- (void) setLayoutConstraints {
-    [self.inputToolbar.contentView.accessoryContainerView setTranslatesAutoresizingMaskIntoConstraints:NO];
-    [self.singleChoicesView setTranslatesAutoresizingMaskIntoConstraints:NO];
-    NSLayoutConstraint *leading = [
-        NSLayoutConstraint
-        constraintWithItem: self.singleChoicesView
-        attribute: NSLayoutAttributeLeading
-        relatedBy: NSLayoutRelationEqual
-        toItem: self.inputToolbar.contentView.accessoryContainerView
-        attribute: NSLayoutAttributeLeading
-        multiplier: 1
-        constant: 0
-    ];
-    NSLayoutConstraint *top = [
-        NSLayoutConstraint
-        constraintWithItem: self.singleChoicesView
-        attribute: NSLayoutAttributeTop
-        relatedBy: NSLayoutRelationEqual
-        toItem: self.inputToolbar.contentView.accessoryContainerView
-        attribute: NSLayoutAttributeTop
-        multiplier: 1
-        constant: 0
-    ];
-    NSLayoutConstraint *trailing = [
-        NSLayoutConstraint
-        constraintWithItem: self.singleChoicesView
-        attribute: NSLayoutAttributeTrailing
-        relatedBy: NSLayoutRelationEqual
-        toItem: self.inputToolbar.contentView.accessoryContainerView
-        attribute: NSLayoutAttributeTrailing
-        multiplier: 1
-        constant: 0
-    ];
-    NSLayoutConstraint *bottom = [
-        NSLayoutConstraint
-        constraintWithItem: self.singleChoicesView
-        attribute: NSLayoutAttributeBottom
-        relatedBy: NSLayoutRelationEqual
-        toItem: self.inputToolbar.contentView.accessoryContainerView
-        attribute: NSLayoutAttributeBottom
-        multiplier: 1
-        constant: 0
-    ];
-
-    [self.inputToolbar.contentView.accessoryContainerView addConstraints:@[leading, top, trailing, bottom]];
-}
-
-- (void)singleChoicesView:(IQSingleChoicesView *) view didChangeHeight:(CGFloat)height {
-    [self jsq_setToolbarBottomLayoutGuideConstant: 0];
-}
-
 - (void)singleChoicesView:(IQSingleChoicesView *)view didSelectOption:(IQSingleChoice *)singleChoice {
     [IQChannels sendSingleChoice: singleChoice];
-    [self.singleChoicesView clearSingleChoices];
 }
 
 - (void)onTick {
@@ -469,7 +417,6 @@
     }
 
     [self inputToolbarEnableInteraction];
-    [self setupSingleChoices];
 
     [_refreshControl endRefreshing];
 }
@@ -508,8 +455,6 @@
         }
         [self.collectionView reloadItemsAtIndexPaths:paths];
     }
-
-    [self setupSingleChoices];
 }
 
 #pragma mark - Typing indicator
@@ -654,25 +599,6 @@
         
         [[UIApplication sharedApplication] openURL:url options:nil completionHandler:nil];
     }];
-}
-
-- (void)setupSingleChoices {
-    NSArray<IQChatMessage *> *reversedMessages = [[_messages reverseObjectEnumerator] allObjects];
-    for (IQChatMessage* message in reversedMessages) {
-        if ([message.Payload isEqual: IQChatPayloadSingleChoice]) {
-            if (message.IsDropDown == YES) {
-                NSArray<IQSingleChoice *> *singleChoices = message.SingleChoices;
-                if (message.SingleChoices.count > 0) {
-                    [self.singleChoicesView setSingleChoices: [singleChoices mutableCopy]];
-                    [self.singleChoicesView.collectionView setTransform: CGAffineTransformMakeScale(-1, 1)];
-                }
-                if (message.DisableFreeText == YES) {
-                    [self inputToolbarDisableInteraction];
-                }
-                break;
-            }
-        }
-    }
 }
 
 #pragma mark More messages
@@ -833,8 +759,31 @@
                   cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     NSString *originalCellIdentifier = self.incomingCellIdentifier;
     IQChatMessage *message = _messages[(NSUInteger) indexPath.item];
-    if ([message.Payload isEqual:IQChatPayloadSingleChoice] && message.IsDropDown != YES) {
-        self.incomingCellIdentifier = [IQStackedSingleChoicesCell cellReuseIdentifier];
+
+    if ([message.Payload isEqual:IQChatPayloadSingleChoice]) {
+        if (message.IsDropDown == YES) {
+            if (!(_messages.count - 1 == indexPath.item && message.SingleChoices.count > 0)) {
+                return [collectionView
+                    dequeueReusableCellWithReuseIdentifier: [UICollectionViewCell description]
+                    forIndexPath:indexPath
+                ];
+            }
+
+            IQSingleChoicesCell *cell = [collectionView
+                dequeueReusableCellWithReuseIdentifier: [IQSingleChoicesCell cellReuseIdentifier]
+                forIndexPath:indexPath
+            ];
+            [cell setSingleChoicesDelegate: self];
+            [cell setSingleChoices: [message.SingleChoices mutableCopy]];
+
+            if (message.DisableFreeText == YES) {
+                [self inputToolbarDisableInteraction];
+            }
+
+            return cell;
+        } else {
+            self.incomingCellIdentifier = [IQStackedSingleChoicesCell cellReuseIdentifier];
+        }
     }
 
     JSQMessagesCollectionViewCell *cell = [super collectionView:collectionView cellForItemAtIndexPath:indexPath];
@@ -963,8 +912,41 @@
 {
     CGSize size = [collectionViewLayout sizeForItemAtIndexPath:indexPath];
     IQChatMessage *message = _messages[(NSUInteger) indexPath.item];
-    if ([message.Payload isEqual:IQChatPayloadSingleChoice] && message.IsDropDown != YES) {
-        return CGSizeMake(size.width, size.height + message.SingleChoices.count * 35 - 3 + 6);
+    if ([message.Payload isEqual:IQChatPayloadSingleChoice]) {
+        if (message.IsDropDown == YES) {
+            NSInteger horizontalInsets = collectionViewLayout.sectionInset.left + collectionViewLayout.sectionInset.right + 2;
+            CGFloat width = CGRectGetWidth(collectionViewLayout.collectionView.bounds) - horizontalInsets;
+            NSMutableArray<IQSingleChoice *> *choices = [message.SingleChoices mutableCopy];
+            if (!(_messages.count - 1 == indexPath.item && choices.count > 0)) {
+                return CGSizeMake(width, 0);
+            }
+
+            CGFloat height = 2 + 28 + 2;
+            NSInteger index = 0;
+            NSInteger choiceIndex = 0;
+            do {
+                CGFloat lineWidth = 0;
+                while (lineWidth <= width && choiceIndex < choices.count) {
+                    NSString* title = choices[choiceIndex].title;
+                    CGRect boundingRect = [title boundingRectWithSize: CGSizeMake(-1, -1)
+                           options: NSStringDrawingUsesLineFragmentOrigin
+                           attributes: @{ NSFontAttributeName: [UIFont systemFontOfSize: 12] }
+                           context: nil
+                    ];
+                    CGFloat choiceWidth = 6 + boundingRect.size.width + 6 + 1;
+                    lineWidth += choiceWidth;
+                    choiceIndex += 1;
+                }
+                if (lineWidth > width) {
+                    choiceIndex -= 1;
+                }
+                index += 1;
+            } while (choiceIndex < choices.count);
+
+            return CGSizeMake(width, height * index + 4 * (index - 1));
+        } else {
+            return CGSizeMake(size.width, size.height + message.SingleChoices.count * 35 - 3 + 6);
+        }
     }
     return size;
 }

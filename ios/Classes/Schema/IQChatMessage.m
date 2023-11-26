@@ -63,6 +63,11 @@
     message.My = [IQJSON boolFromObject:object key:@"My"];
 
     message.SingleChoices = [IQSingleChoice fromJSONArray:[IQJSON arrayFromObject:object key:@"SingleChoices"]];
+    NSInteger index = 0;
+    while (index < message.SingleChoices.count) {
+        message.SingleChoices[index].messagelocalId = message.LocalId;
+        index += 1;
+    }
 
     return message;
 }

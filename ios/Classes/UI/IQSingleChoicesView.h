@@ -6,7 +6,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "IQSingleChoiceCell.h"
+#import "IQSingleChoice.h"
 
 @class IQSingleChoicesView;
 
@@ -14,19 +14,11 @@
 
 @required
 
-- (void)singleChoicesView:(IQSingleChoicesView *)view didChangeHeight:(CGFloat)height;
-
 - (void)singleChoicesView:(IQSingleChoicesView *)view didSelectOption:(IQSingleChoice *)singleChoice;
 
 @end
 
-@interface IQSingleChoicesView: UIView <
-    UICollectionViewDataSource,
-    UICollectionViewDelegate,
-    UICollectionViewDelegateFlowLayout
->
-
-@property (nonatomic, readonly) UICollectionView *collectionView;
+@interface IQSingleChoicesView: UIView
 
 @property (weak, nonatomic) id<IQSingleChoicesViewDelegate> delegate;
 

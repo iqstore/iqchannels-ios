@@ -7,16 +7,12 @@
 
 #import "IQSingleChoicesView.h"
 #import "RightAlignedCollectionViewFlowLayout.h"
-#import "IQSingleChoiceCell.h"
 #import <IQChannels/IQSingleChoice.h>
 
 @interface IQSingleChoicesView ()
 
-@property (nonatomic) UICollectionView *collectionView;
-
-@property (nonatomic) UICollectionViewFlowLayout *flowLayout;
-
-@property (nonatomic) NSLayoutConstraint *heightConstraint;
+@property (nonatomic, strong) UIStackView *stackView;
+@property (nonatomic, strong) NSMutableArray<UIButton *> *buttonsArray;
 
 @end
 
@@ -28,33 +24,21 @@
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame: frame];
     if (self) {
-        RightAlignedCollectionViewFlowLayout *collectionViewLayout = [[RightAlignedCollectionViewFlowLayout alloc] init];
-        self.collectionView = [
-            [UICollectionView alloc]
-            initWithFrame: CGRectZero
-            collectionViewLayout: collectionViewLayout
-        ];
-        self.collectionView.delegate = self;
-        self.collectionView.dataSource = self;
+        self.stackView = [[UIStackView alloc] init];
+        [self addSubview: self.stackView];
+        [self setLayoutConstraints];
+        [self setStyleProperties];
+        self.buttonsArray = [@[] mutableCopy];
     }
-
-    [self addSubview: self.collectionView];
-    [self setLayoutConstraints];
-    [self setStyleProperties];
-
-    [self.collectionView
-        registerClass: [IQSingleChoiceCell self]
-        forCellWithReuseIdentifier: [IQSingleChoiceCell cellReuseIdentifier]
-    ];
 
     return self;
 }
 
 - (void)setLayoutConstraints {
-    [self.collectionView setTranslatesAutoresizingMaskIntoConstraints:NO];
+    [self.stackView setTranslatesAutoresizingMaskIntoConstraints:NO];
     NSLayoutConstraint *leading = [
         NSLayoutConstraint
-        constraintWithItem: self.collectionView
+        constraintWithItem: self.stackView
         attribute: NSLayoutAttributeLeading
         relatedBy: NSLayoutRelationEqual
         toItem: self
@@ -64,7 +48,7 @@
     ];
     NSLayoutConstraint *top = [
         NSLayoutConstraint
-        constraintWithItem: self.collectionView
+        constraintWithItem: self.stackView
         attribute: NSLayoutAttributeTop
         relatedBy: NSLayoutRelationEqual
         toItem: self
@@ -74,7 +58,7 @@
     ];
     NSLayoutConstraint *trailing = [
         NSLayoutConstraint
-        constraintWithItem: self.collectionView
+        constraintWithItem: self.stackView
         attribute: NSLayoutAttributeTrailing
         relatedBy: NSLayoutRelationEqual
         toItem: self
@@ -84,7 +68,7 @@
     ];
     NSLayoutConstraint *bottom = [
         NSLayoutConstraint
-        constraintWithItem: self.collectionView
+        constraintWithItem: self.stackView
         attribute: NSLayoutAttributeBottom
         relatedBy: NSLayoutRelationEqual
         toItem: self
@@ -92,88 +76,85 @@
         multiplier: 1
         constant: 0
     ];
-    self.heightConstraint = [
-        NSLayoutConstraint
-        constraintWithItem: self
-        attribute: NSLayoutAttributeHeight
-        relatedBy: NSLayoutRelationEqual
-        toItem: nil
-        attribute: NSLayoutAttributeNotAnAttribute
-        multiplier: 1
-        constant: 0
-    ];
 
-    [self addConstraints:@[leading, top, trailing, bottom, self.heightConstraint]];
+    [self addConstraints:@[leading, top, trailing, bottom]];
 }
 
 - (void)setStyleProperties {
-    self.collectionView.semanticContentAttribute = UISemanticContentAttributeForceRightToLeft;
+    self.stackView.axis = UILayoutConstraintAxisVertical;
+    self.stackView.alignment = UIStackViewAlignmentTrailing;
+    self.stackView.spacing = 4;
 }
 
 - (void)setSingleChoices:(NSMutableArray<IQSingleChoice *> *)singleChoices {
     _singleChoices = singleChoices;
-    [self.collectionView reloadData];
-    CGFloat height = self.collectionView.collectionViewLayout.collectionViewContentSize.height;
-    self.heightConstraint.constant = height;
-    [self.delegate singleChoicesView: self didChangeHeight: height];
+
+    CGFloat width = UIScreen.mainScreen.bounds.size.width;
+
+    CGFloat height = 2 + 28 + 2;
+    NSInteger index = 0;
+    NSInteger choiceIndex = 0;
+    do {
+        UIStackView *lineView = [[UIStackView alloc] init];
+        lineView.spacing = 4;
+
+        CGFloat lineWidth = 0;
+        while (choiceIndex < singleChoices.count) {
+            NSString* title = singleChoices[choiceIndex].title;
+            CGRect boundingRect = [title boundingRectWithSize: CGSizeMake(-1, -1)
+                options: NSStringDrawingUsesLineFragmentOrigin
+                attributes: @{ NSFontAttributeName: [UIFont systemFontOfSize: 12] }
+                context: nil
+            ];
+            CGFloat choiceWidth = 6 + boundingRect.size.width + 6 + 1;
+            lineWidth += choiceWidth;
+
+            if (lineWidth > width) {
+                break;
+            }
+
+            choiceIndex += 1;
+
+            UIButton *button = [self getNewButtonWithTitle: title width:choiceWidth - 4 height:height];
+            [lineView addArrangedSubview:button];
+            [self.buttonsArray addObject:button];
+        }
+        index += 1;
+
+        [self.stackView addArrangedSubview:lineView];
+    } while (choiceIndex < singleChoices.count);
 }
 
 - (void)clearSingleChoices {
-    _singleChoices = [@[] mutableCopy];
-    [self.collectionView reloadData];
-    self.heightConstraint.constant = 0;
-    [self.delegate singleChoicesView: self didChangeHeight: 0];
+    [_singleChoices removeAllObjects];
+
+    for (UIView *subview in self.stackView.arrangedSubviews) {
+        [self.stackView removeArrangedSubview:subview];
+        [subview removeFromSuperview];
+    }
+
+    [self.buttonsArray removeAllObjects];
 }
 
-#pragma mark - Collection view data source
-
-- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
-    return 1;
+- (UIButton *)getNewButtonWithTitle:(NSString*)title width:(CGFloat)width height:(CGFloat)height {
+    UIButton *button = [[UIButton alloc] init];
+    [button setTranslatesAutoresizingMaskIntoConstraints:NO];
+    [[[button heightAnchor] constraintEqualToConstant: height] setActive:YES];
+    [[[button widthAnchor] constraintEqualToConstant: width] setActive:YES];
+    UIColor *color = [UIColor colorWithRed:136 / 255.0 green:186 / 255.0 blue:73 / 255.0 alpha:1];
+    [button setTitleColor:color forState:UIControlStateNormal];
+    [button setTitle:title forState:UIControlStateNormal];
+    button.titleLabel.font = [UIFont systemFontOfSize: 12];
+    button.layer.borderColor = [color CGColor];
+    button.layer.borderWidth = 1;
+    button.layer.cornerRadius = 8;
+    [button addTarget:self action:@selector(buttonAction:) forControlEvents:UIControlEventTouchUpInside];
+    return button;
 }
 
-- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    return _singleChoices.count;
-}
-
-- (__kindof UICollectionViewCell *)
-    collectionView:(UICollectionView *)collectionView
-    cellForItemAtIndexPath:(NSIndexPath *)indexPath {
-
-    IQSingleChoice *singleChoice = _singleChoices[(NSUInteger) indexPath.item];
-
-    NSString *cellIdentifier = [IQSingleChoiceCell cellReuseIdentifier];
-    IQSingleChoiceCell *cell = [collectionView
-        dequeueReusableCellWithReuseIdentifier: cellIdentifier
-        forIndexPath: indexPath
-    ];
-    [cell setSingleChoice: singleChoice];
-
-    return cell;
-}
-
-#pragma mark - Collection view delegate
-
-- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath: (NSIndexPath *) indexPath {
-    IQSingleChoiceCell* cell = [collectionView cellForItemAtIndexPath:indexPath];
-    [_delegate singleChoicesView: self didSelectOption: cell.singleChoice];
-}
-
-#pragma mark - Collection view flow layout delegate
-
-- (CGSize)
-    collectionView:(UICollectionView *)collectionView
-    layout:(UICollectionViewLayout *)collectionViewLayout
-    sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
-
-    IQSingleChoice *singleChoice = _singleChoices[(NSUInteger) indexPath.item];
-    NSString* title = singleChoice.title;
-    CGRect boundingRect = [title boundingRectWithSize: CGSizeMake(-1, -1)
-           options: NSStringDrawingUsesLineFragmentOrigin
-           attributes: @{ NSFontAttributeName: [UIFont systemFontOfSize: 12] }
-           context: nil
-    ];
-
-    return  CGSizeMake(6 + boundingRect.size.width + 6 + 1, 2 + 28 + 2);
+- (void)buttonAction:(UIButton *)button {
+    NSUInteger index = [self.buttonsArray indexOfObject: button];
+    [self.delegate singleChoicesView:self didSelectOption:_singleChoices[index]];
 }
 
 @end

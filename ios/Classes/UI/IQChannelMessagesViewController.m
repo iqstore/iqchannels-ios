@@ -118,10 +118,6 @@
         registerNib:[IQSingleChoicesCell nib]
         forCellWithReuseIdentifier:[IQSingleChoicesCell cellReuseIdentifier]
     ];
-    [self.collectionView
-        registerClass:[UICollectionViewCell self]
-        forCellWithReuseIdentifier:[UICollectionViewCell description]
-    ];
 }
 
 - (void)setupLoginIndicator {
@@ -819,23 +815,17 @@
 
     if ([message.Payload isEqual:IQChatPayloadSingleChoice]) {
         if (message.IsDropDown == YES) {
-            if (!(_messages.count - 1 == indexPath.item && message.SingleChoices.count > 0)) {
-                return [collectionView
-                    dequeueReusableCellWithReuseIdentifier: [UICollectionViewCell description]
-                    forIndexPath:indexPath
-                ];
+            if (_messages.count - 1 == indexPath.item && message.SingleChoices.count > 0) {
+                IQSingleChoicesCell *incomingCell = (IQSingleChoicesCell *)cell;
+                [incomingCell setSingleChoicesDelegate: self];
+                [incomingCell setSingleChoices: [message.SingleChoices mutableCopy]];
+
+                if (message.DisableFreeText == YES) {
+                    [self inputToolbarDisableInteraction];
+                } else {
+                    [self inputToolbarEnableInteraction];
+                }
             }
-
-            IQSingleChoicesCell *incomingCell = (IQSingleChoicesCell *)cell;
-            [incomingCell setSingleChoicesDelegate: self];
-            [incomingCell setSingleChoices: [message.SingleChoices mutableCopy]];
-
-            if (message.DisableFreeText == YES) {
-                [self inputToolbarDisableInteraction];
-            } else {
-                [self inputToolbarEnableInteraction];
-            }
-
         } else {
             IQStackedSingleChoicesCell *incomingCell = (IQStackedSingleChoicesCell *)cell;
             [incomingCell setSingleChoices: [message.SingleChoices mutableCopy]];
@@ -919,8 +909,8 @@
             NSInteger horizontalInsets = collectionViewLayout.sectionInset.left + collectionViewLayout.sectionInset.right + 2;
             CGFloat width = CGRectGetWidth(collectionViewLayout.collectionView.bounds) - horizontalInsets;
             NSMutableArray<IQSingleChoice *> *choices = [message.SingleChoices mutableCopy];
-            if (!(_messages.count - 1 == indexPath.item && choices.count > 0)) {
-                return CGSizeMake(width, 0);
+            if (_messages.count - 1 != indexPath.item || choices.count < 1) {
+                return size;
             }
 
             CGFloat height = 2 + 28 + 2;

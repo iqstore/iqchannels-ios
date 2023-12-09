@@ -406,7 +406,6 @@
     _messagesLoaded = YES;
 
     [_messagesIndicator stopAnimating];
-    [self inputToolbarEnableInteraction];
     [self.collectionView reloadData];
     [self.view layoutIfNeeded];
 
@@ -417,8 +416,6 @@
         CGFloat offset = self.collectionView.contentSize.height - prevOffsetReversed;
         self.collectionView.contentOffset = CGPointMake(self.collectionView.contentOffset.x, offset);
     }
-
-    [self inputToolbarEnableInteraction];
 
     [_refreshControl endRefreshing];
 }
@@ -773,7 +770,6 @@
 
     JSQMessagesCollectionViewCell *cell = [super collectionView:collectionView cellForItemAtIndexPath:indexPath];
     self.incomingCellIdentifier = originalCellIdentifier;
-    [self inputToolbarEnableInteraction];
 
     if (message.My) {
         cell.textView.textColor = [UIColor blackColor];
@@ -790,6 +786,15 @@
                 [_readMessages addObject:@(message.Id)];
             }
         }
+
+        if (_messages.count - 1 == indexPath.item) {
+            if (message.DisableFreeText == YES) {
+                [self inputToolbarDisableInteraction];
+            } else {
+                [self inputToolbarEnableInteraction];
+            }
+        }
+
     }
 
     cell.textView.linkTextAttributes = @{
@@ -827,12 +832,6 @@
                 IQSingleChoicesCell *incomingCell = (IQSingleChoicesCell *)cell;
                 [incomingCell setSingleChoicesDelegate: self];
                 [incomingCell setSingleChoices: [message.SingleChoices mutableCopy]];
-
-                if (message.DisableFreeText == YES) {
-                    [self inputToolbarDisableInteraction];
-                } else {
-                    [self inputToolbarEnableInteraction];
-                }
             }
         } else {
             IQStackedSingleChoicesCell *incomingCell = (IQStackedSingleChoicesCell *)cell;

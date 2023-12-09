@@ -26,6 +26,7 @@
 #import "IQFileToken.h"
 #import "IQHttpFile.h"
 #import "IQClientInput.h"
+#import "ConsoleLogger.h"
 
 
 @implementation IQHttpClient {
@@ -33,6 +34,7 @@
     NSURLSession *_Nonnull _session;
     IQRelationService *_Nonnull _relations;
     NSDictionary<NSString*, NSString*>* _customHeaders;
+    ConsoleLogger * _logger;
 }
 
 - (id)initWithLog:(IQLog *)log relations:(IQRelationService *)relations address:(NSString *)address {
@@ -44,6 +46,7 @@
     _address = address;
     _session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration ephemeralSessionConfiguration]];
     _relations = relations;
+    _logger = [[ConsoleLogger alloc] init];
     return self;
 }
 
@@ -337,6 +340,16 @@
 - (IQHttpRequest *)post:(NSURLRequest *)request callback:(void (^)(IQResult *, NSError *))callback {
     NSURLSessionDataTask *task = [_session dataTaskWithRequest:request completionHandler:
             ^(NSData *data, NSURLResponse *response, NSError *taskError) {
+#ifdef DEBUG
+                [self->_logger
+                    logRequest:request
+                    response:(NSHTTPURLResponse *)response
+                    responseData:data
+                    error:taskError
+                    responseIsCached:false
+                    responseIsMocked:false
+                ];
+#endif
                 [self handleResponse:request.URL data:data response:response error:taskError callback:callback];
             }];
     [task resume];

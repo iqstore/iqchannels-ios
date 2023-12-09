@@ -12,7 +12,6 @@
 @interface IQSingleChoice : NSObject <IQJSONDecodable>
 
 @property(nonatomic) int64_t Id;
-@property(nonatomic) int64_t messagelocalId;
 @property(nonatomic) int64_t ChatMessageId;
 @property(nonatomic) int64_t ClientId;
 @property(nonatomic) BOOL Deleted;

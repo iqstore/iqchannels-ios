@@ -11,6 +11,7 @@
 #import "IQActorType.h"
 #import "IQChatPayloadType.h"
 #import "IQSingleChoice.h"
+#import "IQAction.h"
 
 
 @class IQUser;
@@ -88,6 +89,7 @@
 
 // Single choices
 @property(nonatomic, copy, nullable) NSArray<IQSingleChoice *> *SingleChoices;
+@property(nonatomic, copy, nullable) NSArray<IQAction *> *Actions;
 
 + (NSArray<IQChatMessage *> *_Nonnull)fromJSONArray:(id _Nullable)array;
 

@@ -11,3 +11,4 @@ IQChatPayloadType const IQChatPayloadFile = @"file";
 IQChatPayloadType const IQChatPayloadRating = @"rating";
 IQChatPayloadType const IQChatPayloadNotice = @"notice";
 IQChatPayloadType const IQChatPayloadSingleChoice = @"single-choice";
+IQChatPayloadType const IQChatPayloadCard = @"card";

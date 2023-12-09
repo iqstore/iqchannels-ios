@@ -1698,6 +1698,35 @@ const NSTimeInterval TYPING_DEBOUNCE_SEC = 1.5;
     }
 }
 
+- (void)sendAction:(IQAction *_Nonnull)action {
+    if (!_auth) {
+        return;
+    }
+
+    int64_t localId = [self nextLocalId];
+    IQChatMessage *message = [
+        [IQChatMessage alloc]
+        initWithClient: _auth.Client
+        localId: localId
+        text: action.Title
+    ];
+
+    message.Payload = @"text";
+    message.BotpressPayload = action.Payload;
+
+    IQRelationMap *map = [[IQRelationMap alloc] initWithClient:_auth.Client];
+    [_relations chatMessage:message withMap:map];
+
+    [self appendMessage:message];
+    [self sendMessage:message];
+
+    for (id <IQChannelsMessagesListener> listener in _messageListeners) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [listener iq_messageSent:message];
+        });
+    }
+}
+
 #pragma mark Uploading
 
 - (void)clearUploading {
@@ -2004,6 +2033,10 @@ const NSTimeInterval TYPING_DEBOUNCE_SEC = 1.5;
 
 + (void)sendSingleChoice:(IQSingleChoice *_Nonnull)singleChoice {
     [[self instance] sendSingleChoice: singleChoice];
+}
+
++ (void)sendAction:(IQAction *_Nonnull)action {
+    [[self instance] sendAction: action];
 }
 
 @end

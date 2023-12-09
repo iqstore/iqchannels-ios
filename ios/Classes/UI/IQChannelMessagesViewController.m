@@ -23,6 +23,7 @@
 #import "IQSingleChoicesView.h"
 #import "IQStackedSingleChoicesCell.h"
 #import "IQSingleChoicesCell.h"
+#import "IQCardCell.h"
 
 
 @interface IQChannelMessagesViewController () <
@@ -35,7 +36,8 @@
     UIGestureRecognizerDelegate,
     UIDocumentPickerDelegate,
     IQSingleChoicesViewDelegate,
-    IQStackedSingleChoicesCellDelegate
+    IQStackedSingleChoicesCellDelegate,
+    IQCardCellDelegate
 >
 @property(nonatomic) UIRefreshControl *refreshControl;
 @property(nonatomic) IQActivityIndicator *loginIndicator;
@@ -117,6 +119,10 @@
     [self.collectionView
         registerNib:[IQSingleChoicesCell nib]
         forCellWithReuseIdentifier:[IQSingleChoicesCell cellReuseIdentifier]
+    ];
+    [self.collectionView
+        registerClass:[IQCardCell class]
+        forCellWithReuseIdentifier: [IQCardCell cellReuseIdentifier]
     ];
 }
 
@@ -761,6 +767,8 @@
         } else {
             self.incomingCellIdentifier = [IQStackedSingleChoicesCell cellReuseIdentifier];
         }
+    } else if ([message.Payload isEqual:IQChatPayloadCard]) {
+        return [self dequeueCardCell: collectionView atIndexPath: indexPath];
     }
 
     JSQMessagesCollectionViewCell *cell = [super collectionView:collectionView cellForItemAtIndexPath:indexPath];
@@ -905,40 +913,9 @@
     CGSize size = [collectionViewLayout sizeForItemAtIndexPath:indexPath];
     IQChatMessage *message = _messages[(NSUInteger) indexPath.item];
     if ([message.Payload isEqual:IQChatPayloadSingleChoice]) {
-        if (message.IsDropDown == YES) {
-            NSInteger horizontalInsets = collectionViewLayout.sectionInset.left + collectionViewLayout.sectionInset.right + 2;
-            CGFloat width = CGRectGetWidth(collectionViewLayout.collectionView.bounds) - horizontalInsets;
-            NSMutableArray<IQSingleChoice *> *choices = [message.SingleChoices mutableCopy];
-            if (_messages.count - 1 != indexPath.item || choices.count < 1) {
-                return size;
-            }
-
-            CGFloat height = 2 + 28 + 2;
-            NSInteger index = 0;
-            NSInteger choiceIndex = 0;
-            do {
-                CGFloat lineWidth = 0;
-                while (lineWidth <= width && choiceIndex < choices.count) {
-                    NSString* title = choices[choiceIndex].title;
-                    CGRect boundingRect = [title boundingRectWithSize: CGSizeMake(-1, -1)
-                           options: NSStringDrawingUsesLineFragmentOrigin
-                           attributes: @{ NSFontAttributeName: [UIFont systemFontOfSize: 12] }
-                           context: nil
-                    ];
-                    CGFloat choiceWidth = 6 + boundingRect.size.width + 6 + 1;
-                    lineWidth += choiceWidth;
-                    choiceIndex += 1;
-                }
-                if (lineWidth > width) {
-                    choiceIndex -= 1;
-                }
-                index += 1;
-            } while (choiceIndex < choices.count);
-
-            return CGSizeMake(width, size.height + height * index + 4 * (index - 1));
-        } else {
-            return CGSizeMake(size.width, size.height + message.SingleChoices.count * 35 - 3 + 6);
-        }
+        return [self getSingleChoiceCellSize: collectionViewLayout atIndexPath:indexPath];
+    } else if ([message.Payload isEqual:IQChatPayloadCard]) {
+        return [self getCardCellSize: collectionViewLayout atIndexPath:indexPath];
     }
     return size;
 }
@@ -1338,10 +1315,109 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls {
     return transition;
 }
 
+#pragma mark Card cell
+
+- (IQCardCell *)dequeueCardCell:(UICollectionView *)collectionView atIndexPath:(NSIndexPath *)indexPath {
+    IQChatMessage *message = _messages[(NSUInteger) indexPath.item];
+    IQCardCell *cell = [collectionView
+        dequeueReusableCellWithReuseIdentifier: IQCardCell.cellReuseIdentifier
+        forIndexPath: indexPath
+    ];
+
+    JSQMessagesTimestampFormatter *formatter = [JSQMessagesTimestampFormatter sharedFormatter];
+    NSString *date = [formatter timeForDate:message.date];
+    [cell setTime: date];
+
+    cell.delegate = self;
+
+    [cell setText: message.text];
+    [cell setActions: [message.Actions mutableCopy]];
+
+    JSQMessagesCollectionViewFlowLayout *layout = self.collectionView.collectionViewLayout;
+    CGFloat width = [layout messageBubbleSizeForItemAtIndexPath: indexPath].width + 1;
+    [cell setMessageBubbleWidth: width];
+
+    if (message.isMediaMessage) {
+        [cell setAsMedia];
+        [IQChannels loadMessageMedia:message.Id];
+        if (message.media) {
+            JSQPhotoMediaItem *item = message.media;
+            [cell setImage:item.image];
+        }
+    }
+
+    return cell;
+}
+
+- (CGSize)getCardCellSize: (JSQMessagesCollectionViewFlowLayout *)layout atIndexPath:(NSIndexPath *)indexPath {
+
+    IQChatMessage *message = _messages[(NSUInteger) indexPath.item];
+    IQChatMessage *copyMessage = [[IQChatMessage alloc] init];
+    [copyMessage setText: message.text];
+    CGSize size = [layout.bubbleSizeCalculator messageBubbleSizeForMessageData:copyMessage
+                                                          atIndexPath:indexPath
+                                                           withLayout:layout];
+    CGSize size2 = [layout sizeForItemAtIndexPath:indexPath];
+    CGFloat imageHeight = message.isMediaMessage ? 150 : 0;
+    return CGSizeMake(size2.width, imageHeight + size.height + message.Actions.count * 32 + 2 * 16 + 24);
+}
+
+- (CGSize)getSingleChoiceCellSize: (JSQMessagesCollectionViewFlowLayout *)layout atIndexPath:(NSIndexPath *)indexPath {
+    CGSize size = [layout sizeForItemAtIndexPath:indexPath];
+    IQChatMessage *message = _messages[(NSUInteger) indexPath.item];
+    if (message.IsDropDown == YES) {
+        NSInteger horizontalInsets = layout.sectionInset.left + layout.sectionInset.right + 2;
+        CGFloat width = CGRectGetWidth(layout.collectionView.bounds) - horizontalInsets;
+        NSMutableArray<IQSingleChoice *> *choices = [message.SingleChoices mutableCopy];
+        if (_messages.count - 1 != indexPath.item || choices.count < 1) {
+            return size;
+        }
+
+        CGFloat height = 2 + 28 + 2;
+        NSInteger index = 0;
+        NSInteger choiceIndex = 0;
+        do {
+            CGFloat lineWidth = 0;
+            while (lineWidth <= width && choiceIndex < choices.count) {
+                NSString* title = choices[choiceIndex].title;
+                CGRect boundingRect = [title boundingRectWithSize: CGSizeMake(-1, -1)
+                       options: NSStringDrawingUsesLineFragmentOrigin
+                       attributes: @{ NSFontAttributeName: [UIFont systemFontOfSize: 12] }
+                       context: nil
+                ];
+                CGFloat choiceWidth = 6 + boundingRect.size.width + 6 + 1;
+                lineWidth += choiceWidth;
+                choiceIndex += 1;
+            }
+            if (lineWidth > width) {
+                choiceIndex -= 1;
+            }
+            index += 1;
+        } while (choiceIndex < choices.count);
+
+        return CGSizeMake(width, size.height + height * index + 4 * (index - 1));
+    } else {
+        return CGSizeMake(size.width, size.height + message.SingleChoices.count * 35 - 3 + 6);
+    }
+}
+
 #pragma mark IQStackedSingleChoicesCellDelegate
 
 - (void)stackedSingleChoicesCell:(IQStackedSingleChoicesCell *)cell didSelectOption:(IQSingleChoice *)singleChoice {
     [IQChannels sendSingleChoice: singleChoice];
+}
+
+#pragma mark IQSCarCellDelegate
+
+- (void)cardCell:(IQCardCell *)cell didSelectOption:(IQAction *)action {
+    if ([action.Action isEqual: @"Postback"]) {
+        [IQChannels sendAction: action];
+    } else if ([action.Action isEqual: @"Open URL"]) {
+        NSURL *url = [NSURL URLWithString:action.URL];
+        [[UIApplication sharedApplication] openURL:url options:nil completionHandler:nil];
+    } else if ([action.Action isEqual: @"Say something"]) {
+        [IQChannels sendAction: action];
+    }
 }
 
 @end

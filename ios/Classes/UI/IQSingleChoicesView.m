@@ -79,6 +79,8 @@
 }
 
 - (void)setStyleProperties {
+    self.backgroundColor = [UIColor clearColor];
+    self.stackView.backgroundColor = [UIColor clearColor];
     self.stackView.axis = UILayoutConstraintAxisVertical;
     self.stackView.alignment = UIStackViewAlignmentTrailing;
     self.stackView.spacing = 4;

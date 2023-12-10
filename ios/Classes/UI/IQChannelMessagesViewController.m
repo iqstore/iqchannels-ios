@@ -764,7 +764,7 @@
         } else {
             self.incomingCellIdentifier = [IQStackedSingleChoicesCell cellReuseIdentifier];
         }
-    } else if ([message.Payload isEqual:IQChatPayloadCard]) {
+    } else if ([message.Payload isEqual:IQChatPayloadCard] || [message.Payload isEqual:IQChatPayloadCarousel]) {
         return [self dequeueCardCell: collectionView atIndexPath: indexPath];
     }
 
@@ -913,7 +913,7 @@
     IQChatMessage *message = _messages[(NSUInteger) indexPath.item];
     if ([message.Payload isEqual:IQChatPayloadSingleChoice]) {
         return [self getSingleChoiceCellSize: collectionViewLayout atIndexPath:indexPath];
-    } else if ([message.Payload isEqual:IQChatPayloadCard]) {
+    } else if ([message.Payload isEqual:IQChatPayloadCard] || [message.Payload isEqual:IQChatPayloadCarousel]) {
         return [self getCardCellSize: collectionViewLayout atIndexPath:indexPath];
     }
     return size;
@@ -1342,6 +1342,14 @@ didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls {
         if (message.media) {
             JSQPhotoMediaItem *item = message.media;
             [cell setImage:item.image];
+        }
+    }
+
+    if (!message.Read) {
+        if (_visible) {
+            [IQChannels markAsRead:message.Id];
+        } else {
+            [_readMessages addObject:@(message.Id)];
         }
     }
 

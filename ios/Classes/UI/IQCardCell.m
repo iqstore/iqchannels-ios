@@ -333,6 +333,8 @@
 
     self.activityIndicatorView.color = [UIColor whiteColor];
 
+    self.imageView.contentMode = UIViewContentModeScaleAspectFit;
+
     self.textLabel.numberOfLines = 0;
     [self.textLabel setContentCompressionResistancePriority:UILayoutPriorityDefaultHigh forAxis:UILayoutConstraintAxisVertical];
     self.textLabel.textColor = [UIColor blackColor];

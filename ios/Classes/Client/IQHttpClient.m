@@ -352,6 +352,9 @@
 #endif
                 [self handleResponse:request.URL data:data response:response error:taskError callback:callback];
             }];
+#ifdef DEBUG
+    [_logger logRequest:request];
+#endif
     [task resume];
     return [[IQHttpRequest alloc] initWithCancellation:^{
         [task cancel];

@@ -1669,6 +1669,64 @@ const NSTimeInterval TYPING_DEBOUNCE_SEC = 1.5;
     [self sendMessages];
 }
 
+- (void)sendSingleChoice:(IQSingleChoice *_Nonnull)singleChoice {
+    if (!_auth) {
+        return;
+    }
+
+    int64_t localId = [self nextLocalId];
+    IQChatMessage *message = [
+        [IQChatMessage alloc]
+        initWithClient: _auth.Client
+        localId: localId
+        text: singleChoice.title
+    ];
+
+    message.Payload = @"text";
+    message.BotpressPayload = singleChoice.value;
+
+    IQRelationMap *map = [[IQRelationMap alloc] initWithClient:_auth.Client];
+    [_relations chatMessage:message withMap:map];
+
+    [self appendMessage:message];
+    [self sendMessage:message];
+
+    for (id <IQChannelsMessagesListener> listener in _messageListeners) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [listener iq_messageSent:message];
+        });
+    }
+}
+
+- (void)sendAction:(IQAction *_Nonnull)action {
+    if (!_auth) {
+        return;
+    }
+
+    int64_t localId = [self nextLocalId];
+    IQChatMessage *message = [
+        [IQChatMessage alloc]
+        initWithClient: _auth.Client
+        localId: localId
+        text: action.Title
+    ];
+
+    message.Payload = @"text";
+    message.BotpressPayload = action.Payload;
+
+    IQRelationMap *map = [[IQRelationMap alloc] initWithClient:_auth.Client];
+    [_relations chatMessage:message withMap:map];
+
+    [self appendMessage:message];
+    [self sendMessage:message];
+
+    for (id <IQChannelsMessagesListener> listener in _messageListeners) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [listener iq_messageSent:message];
+        });
+    }
+}
+
 #pragma mark Uploading
 
 - (void)clearUploading {
@@ -1971,6 +2029,14 @@ const NSTimeInterval TYPING_DEBOUNCE_SEC = 1.5;
 
 + (IQHttpRequest *_Nonnull)fileURL:(NSString *_Nonnull)fileId callback:(IQFileURLCallback _Nonnull)callback {
     return [[self instance] fileURL:fileId callback:callback];
+}
+
++ (void)sendSingleChoice:(IQSingleChoice *_Nonnull)singleChoice {
+    [[self instance] sendSingleChoice: singleChoice];
+}
+
++ (void)sendAction:(IQAction *_Nonnull)action {
+    [[self instance] sendAction: action];
 }
 
 @end

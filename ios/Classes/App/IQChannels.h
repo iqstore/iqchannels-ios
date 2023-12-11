@@ -3,6 +3,8 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <IQChannels/IQSingleChoice.h>
+#import <IQChannels/IQAction.h>
 
 
 @class IQSubscription;
@@ -40,6 +42,8 @@ typedef void (^IQFileURLCallback)(NSURL *_Nullable, NSError *_Nullable);
 + (void)sendText:(NSString *_Nonnull)text;
 + (void)sendImage:(UIImage *_Nonnull)image filename:(NSString *_Nullable)filename;
 + (void)sendData:(NSData *_Nonnull)data filename:(NSString *_Nullable)filename;
++ (void)sendSingleChoice:(IQSingleChoice *_Nonnull)singleChoice;
++ (void)sendAction:(IQAction *_Nonnull)action;
 + (void)deleteFailedUpload:(int64_t)localId;
 + (void)retryUpload:(int64_t)localId;
 + (void)markAsRead:(int64_t)messageId;

@@ -49,15 +49,22 @@
     message.FileId = [IQJSON stringFromObject:object key:@"FileId"];
     message.RatingId = [IQJSON numberFromObject:object key:@"RatingId"];
     message.NoticeId = [IQJSON numberFromObject:object key:@"NoticeId"];
+    message.BotpressPayload = [IQJSON stringFromObject:object key:@"BotpressPayload"];
 
     message.Received = [IQJSON boolFromObject:object key:@"Received"];
     message.Read = [IQJSON boolFromObject:object key:@"Read"];
+    message.DisableFreeText = [IQJSON boolFromObject:object key:@"DisableFreeText"];
+    message.IsDropDown = [IQJSON boolFromObject:object key:@"IsDropDown"];
 
     message.CreatedAt = [IQJSON int64FromObject:object key:@"CreatedAt"];
     message.ReceivedAt = [IQJSON numberFromObject:object key:@"ReceivedAt"];
     message.ReadAt = [IQJSON numberFromObject:object key:@"ReadAt"];
 
     message.My = [IQJSON boolFromObject:object key:@"My"];
+
+    message.SingleChoices = [IQSingleChoice fromJSONArray:[IQJSON arrayFromObject:object key:@"SingleChoices"]];
+    message.Actions = [IQAction fromJSONArray:[IQJSON arrayFromObject:object key:@"Actions"]];
+
     return message;
 }
 
@@ -152,6 +159,7 @@
     _Text = message.text;
     _FileId = message.FileId;
     _NoticeId = message.NoticeId;
+    _BotpressPayload = message.BotpressPayload;
 
     // Relations
     _Client = message.Client;

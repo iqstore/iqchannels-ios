@@ -2,9 +2,9 @@ use_frameworks!
 
 target 'IQChannels_Example' do
   platform :ios, '13.0'
-  pod 'IQChannels', :path => '../'
-  
-  pod 'JSQMessagesViewController', :git => 'https://github.com/iqstore/JSQMessagesViewController.git', :tag => '7.3.9'
+  pod 'IQChannels', :git => 'git@github.com:iqstore/iqchannels-ios.git', :tag => '1.6.0'
+
+  pod 'JSQMessagesViewController', :git => 'git@github.com:iqstore/JSQMessagesViewController.git', :tag => '7.3.10'
 
   target 'IQChannels_Tests' do
     inherit! :search_paths

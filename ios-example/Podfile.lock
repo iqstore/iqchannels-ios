@@ -3,17 +3,17 @@ PODS:
     - JSQMessagesViewController
     - SDWebImage (~> 5.10)
     - TRVSEventSource (= 0.0.8)
-  - JSQMessagesViewController (7.3.9):
+  - JSQMessagesViewController (7.3.10):
     - JSQSystemSoundPlayer (~> 2.0.1)
   - JSQSystemSoundPlayer (2.0.1)
-  - SDWebImage (5.16.0):
-    - SDWebImage/Core (= 5.16.0)
-  - SDWebImage/Core (5.16.0)
+  - SDWebImage (5.18.7):
+    - SDWebImage/Core (= 5.18.7)
+  - SDWebImage/Core (5.18.7)
   - TRVSEventSource (0.0.8)
 
 DEPENDENCIES:
-  - IQChannels (from `../`)
-  - JSQMessagesViewController (from `https://github.com/iqstore/JSQMessagesViewController.git`, tag `7.3.9`)
+  - "IQChannels (from `git@github.com:iqstore/iqchannels-ios.git`, tag `1.6.0`)"
+  - "JSQMessagesViewController (from `git@github.com:iqstore/JSQMessagesViewController.git`, tag `7.3.10`)"
 
 SPEC REPOS:
   trunk:
@@ -23,23 +23,27 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   IQChannels:
-    :path: "../"
+    :git: "git@github.com:iqstore/iqchannels-ios.git"
+    :tag: 1.6.0
   JSQMessagesViewController:
-    :git: https://github.com/iqstore/JSQMessagesViewController.git
-    :tag: 7.3.9
+    :git: "git@github.com:iqstore/JSQMessagesViewController.git"
+    :tag: 7.3.10
 
 CHECKOUT OPTIONS:
+  IQChannels:
+    :git: "git@github.com:iqstore/iqchannels-ios.git"
+    :tag: 1.6.0
   JSQMessagesViewController:
-    :git: https://github.com/iqstore/JSQMessagesViewController.git
-    :tag: 7.3.9
+    :git: "git@github.com:iqstore/JSQMessagesViewController.git"
+    :tag: 7.3.10
 
 SPEC CHECKSUMS:
   IQChannels: fc1637c2c5ae6bf84556607ce104334feb002a3b
-  JSQMessagesViewController: e0d80962fabfff3c96732399edf1d61873e0e0dc
+  JSQMessagesViewController: 48a96fef0406fa859ba94e53e4032a3520fff787
   JSQSystemSoundPlayer: c5850e77a4363ffd374cd851154b9af93264ed8d
-  SDWebImage: 2aea163b50bfcb569a2726b6a754c54a4506fcf6
+  SDWebImage: f9258c58221ed854cfa0e2b80ee4033710b1c6d3
   TRVSEventSource: 19fb940e0351ceb97125d46fd40cd55e339568d8
 
-PODFILE CHECKSUM: 0dd25818aa32861e1136f6294049a89c312d7948
+PODFILE CHECKSUM: 543315f09161a75dcb247574065733c21bc84c0c
 
 COCOAPODS: 1.14.2

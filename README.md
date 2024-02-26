@@ -18,7 +18,7 @@ SDK для айфона сделано как библиотека для Cocoap
 ```
 # Podfile
 pod 'IQChannels', :git => 'https://github.com/iqstore/iqchannels-ios.git', :tag => '1.6.0'
-pod 'JSQMessagesViewController', :git => 'git@github.com:iqstore/JSQMessagesViewController.git', :tag => '7.3.10'
+pod 'JSQMessagesViewController', :git => 'https://github.com/iqstore/JSQMessagesViewController.git', :tag => '7.3.10'
 ```
 
 Установить зависимости:
